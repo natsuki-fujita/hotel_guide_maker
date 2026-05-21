@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>館内案内メーカー — Pressly</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; background: #f0f0ee; color: #1a1a1a; min-height: 100vh; }
+.app { display: flex; height: 100vh; }
+
+.sidebar { width: 340px; min-width: 340px; border-right: 1px solid #e0e0de; display: flex; flex-direction: column; background: #fafaf8; overflow: hidden; }
+.sidebar-header { padding: 18px 20px 14px; border-bottom: 1px solid #e0e0de; flex-shrink: 0; }
+.app-brand { font-size: 10px; font-weight: 700; color: #bbb; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 3px; }
+.app-title { font-size: 17px; font-weight: 700; color: #1a1a1a; }
+
+.page-tabs { display: flex; padding: 10px 12px 0; gap: 6px; border-bottom: 1px solid #e0e0de; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; background: #fafaf8; }
+.page-tabs::-webkit-scrollbar { display: none; }
+.page-tab { padding: 7px 14px; border-radius: 8px 8px 0 0; border: 1px solid #ddd; border-bottom: none; background: #f0f0ee; font-size: 12px; font-weight: 600; color: #888; cursor: pointer; white-space: nowrap; font-family: inherit; transition: all 0.15s; position: relative; bottom: -1px; }
+.page-tab.active { background: #fff; color: #1a1a1a; border-color: #e0e0de; border-bottom-color: #fff; }
+.page-tab-add { padding: 7px 10px; border-radius: 8px 8px 0 0; border: 1px dashed #ccc; border-bottom: none; background: none; font-size: 13px; color: #aaa; cursor: pointer; font-family: inherit; transition: all 0.15s; position: relative; bottom: -1px; }
+.page-tab-add:hover { color: #555; border-color: #999; }
+.page-tab-del { margin-left: 4px; font-size: 11px; color: #ccc; background: none; border: none; cursor: pointer; padding: 0 2px; border-radius: 3px; }
+.page-tab-del:hover { color: #c00; background: #fee; }
+
+.sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+.section-label { font-size: 10px; font-weight: 700; color: #bbb; letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 20px 7px; }
+
+.type-selector { display: flex; flex-direction: column; gap: 6px; padding: 0 16px 14px; }
+.type-btn { padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; text-align: left; transition: all 0.15s; font-family: inherit; display: flex; align-items: center; gap: 8px; }
+.type-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.custom-text-wrap { padding: 0 16px 14px; }
+.custom-text-wrap input { width: 100%; font-size: 13px; font-weight: 400; padding: 9px 11px; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; transition: border-color 0.15s; }
+.custom-text-wrap input:focus { border-color: #999; }
+.custom-hint { font-size: 10px; color: #bbb; padding: 3px 2px 0; }
+
+.color-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 0 16px 14px; }
+.color-btn { padding: 9px 8px; border: 1.5px solid #ddd; border-radius: 8px; background: #fff; font-size: 12px; font-weight: 600; color: #666; cursor: pointer; text-align: center; transition: all 0.12s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.color-btn.active { border-width: 2.5px; }
+.color-swatch { width: 13px; height: 13px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0; }
+
+.divider { height: 1px; background: #e0e0de; margin: 2px 0; flex-shrink: 0; }
+.field-group { padding: 0 16px 12px; }
+.field-group input, .field-group textarea { width: 100%; font-size: 13px; padding: 8px 10px; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #1a1a1a; resize: none; font-family: inherit; line-height: 1.6; outline: none; transition: border-color 0.15s; }
+.field-group input:focus, .field-group textarea:focus { border-color: #999; }
+.char-count { font-size: 10px; color: #bbb; text-align: right; margin-top: 3px; }
+.char-count.warn { color: #e07000; }
+.char-count.over { color: #c00; font-weight: 700; }
+
+.logo-toggle-row { display: flex; align-items: center; gap: 10px; padding: 0 16px 10px; }
+.logo-toggle-label { font-size: 13px; color: #555; }
+.toggle-switch { width: 36px; height: 20px; border-radius: 10px; background: #ddd; position: relative; cursor: pointer; border: none; transition: background 0.18s; flex-shrink: 0; }
+.toggle-switch.on { background: #1a1a1a; }
+.toggle-switch::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.18s; }
+.toggle-switch.on::after { transform: translateX(16px); }
+.logo-upload-area { border: 1px dashed #ccc; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.15s; background: #fff; margin: 0 16px 12px; }
+.logo-upload-area:hover { background: #f5f5f3; border-color: #999; }
+.logo-upload-area.has-logo { border-style: solid; border-color: #1a1a1a; }
+.logo-preview-thumb { max-width: 100%; max-height: 48px; object-fit: contain; display: block; margin: 0 auto 6px; }
+.logo-upload-label { font-size: 12px; color: #aaa; }
+.logo-upload-label.loaded { color: #1a1a1a; font-weight: 600; }
+.logo-clear-btn { font-size: 11px; color: #c00; background: none; border: none; cursor: pointer; margin-top: 4px; font-family: inherit; }
+
+.items-section { padding: 0 16px; flex: 1; }
+.item-card { background: #fff; border: 1px solid #e0e0de; border-radius: 8px; padding: 11px; margin-bottom: 7px; }
+.item-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.icon-picker-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid #ddd; background: #f5f5f3; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 24px; flex-shrink: 0; transition: background 0.12s; }
+.icon-picker-btn:hover { background: #ebebea; }
+.item-title-input { flex: 1; font-size: 13px; font-weight: 600; padding: 7px 9px; border: 1px solid #ddd; border-radius: 7px; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; transition: border-color 0.15s; }
+.item-title-input:focus { border-color: #999; }
+.item-delete { width: 26px; height: 26px; border: none; background: none; color: #ccc; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; border-radius: 5px; flex-shrink: 0; transition: all 0.12s; }
+.item-delete:hover { background: #fee; color: #c00; }
+.item-desc-input { width: 100%; font-size: 12px; padding: 7px 9px; border: 1px solid #ddd; border-radius: 7px; background: #fff; color: #1a1a1a; resize: none; font-family: inherit; line-height: 1.55; margin-bottom: 7px; outline: none; transition: border-color 0.15s; }
+.item-desc-input:focus { border-color: #999; }
+
+/* 営業時間・強調文トグル行 */
+.sub-toggle-row { display: flex; align-items: center; gap: 10px; }
+.sub-toggle-group { display: flex; align-items: center; gap: 5px; }
+.sub-toggle { width: 26px; height: 15px; border-radius: 8px; background: #ddd; position: relative; cursor: pointer; border: none; transition: background 0.15s; flex-shrink: 0; }
+.sub-toggle.on { background: #1a1a1a; }
+.sub-toggle::after { content: ''; position: absolute; width: 11px; height: 11px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.15s; }
+.sub-toggle.on::after { transform: translateX(11px); }
+.sub-toggle-label { font-size: 11px; color: #aaa; white-space: nowrap; }
+.sub-input { flex: 1; font-size: 11px; padding: 4px 7px; border: 1px solid #ddd; border-radius: 5px; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; margin-top: 5px; width: 100%; }
+.sub-divider { color: #ddd; font-size: 11px; }
+
+.add-item-btn { width: 100%; padding: 12px; border: 1.5px dashed #bbb; border-radius: 8px; background: none; color: #888; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; font-family: inherit; }
+.add-item-btn:hover { background: #f0f0ee; border-style: solid; border-color: #888; color: #333; }
+.items-empty { text-align: center; padding: 20px; color: #ccc; font-size: 13px; border: 1.5px dashed #e0e0de; border-radius: 8px; margin-bottom: 10px; }
+
+.sidebar-footer { padding: 12px 16px; border-top: 1px solid #e0e0de; display: flex; flex-direction: column; gap: 7px; flex-shrink: 0; }
+.btn-primary { width: 100%; padding: 11px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; transition: opacity 0.15s; }
+.btn-primary:hover { opacity: 0.83; }
+.btn-secondary { width: 100%; padding: 9px; background: none; color: #666; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
+.btn-secondary:hover { background: #f0f0ee; }
+
+/* PREVIEW */
+.preview-area { flex: 1; background: #e4e4e2; padding: 24px 28px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.preview-label-row { width: 794px; max-width: 794px; }
+.preview-label { font-size: 10px; color: #999; letter-spacing: 0.07em; text-transform: uppercase; }
+.page-wrapper { width: 794px; max-width: 794px; }
+.page-num-label { font-size: 10px; color: #aaa; margin-top: 6px; text-align: left; width: 794px; }
+
+.a4-page { width: 794px; height: 1123px; background: #fff; border-radius: 3px; padding: 54px 52px 44px; display: flex; flex-direction: column; box-shadow: 0 4px 28px rgba(0,0,0,0.13); overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+/* テーマ */
+.a4-page.theme-normal .prev-guide-type { color: #42210B; }
+.a4-page.theme-normal .prev-intro { color: #5a3020; border-bottom-color: #42210B; }
+.a4-page.theme-normal .prev-item + .prev-item, .a4-page.theme-normal .prev-separator { border-top-color: #c4987a; }
+.a4-page.theme-normal .prev-icon-wrap { background: #f5ece4; }
+.a4-page.theme-normal .prev-item-title { color: #42210B; }
+.a4-page.theme-normal .prev-item-sub { color: #7a4020; }
+.a4-page.theme-normal .prev-item-desc { color: #5a3020; }
+.a4-page.theme-normal .prev-footer { border-top-color: #42210B; color: #42210B; }
+
+.a4-page.theme-chic .prev-guide-type { color: #000A46; }
+.a4-page.theme-chic .prev-intro { color: #1a2060; border-bottom-color: #000A46; }
+.a4-page.theme-chic .prev-item + .prev-item, .a4-page.theme-chic .prev-separator { border-top-color: #8a94c8; }
+.a4-page.theme-chic .prev-icon-wrap { background: #e4e8f8; }
+.a4-page.theme-chic .prev-item-title { color: #000A46; }
+.a4-page.theme-chic .prev-item-sub { color: #2a3480; }
+.a4-page.theme-chic .prev-item-desc { color: #1a2060; }
+.a4-page.theme-chic .prev-footer { border-top-color: #000A46; color: #000A46; }
+
+.a4-page.theme-green .prev-guide-type { color: #3a7a34; }
+.a4-page.theme-green .prev-intro { color: #2a5a26; border-bottom-color: #5EAA57; }
+.a4-page.theme-green .prev-item + .prev-item, .a4-page.theme-green .prev-separator { border-top-color: #9acc96; }
+.a4-page.theme-green .prev-icon-wrap { background: #e4f4e2; }
+.a4-page.theme-green .prev-item-title { color: #3a7a34; }
+.a4-page.theme-green .prev-item-sub { color: #2a6024; }
+.a4-page.theme-green .prev-item-desc { color: #2a5a26; }
+.a4-page.theme-green .prev-footer { border-top-color: #5EAA57; color: #3a7a34; }
+
+.a4-page.theme-natural .prev-guide-type { color: #c05040; }
+.a4-page.theme-natural .prev-intro { color: #8a3828; border-bottom-color: #EF9484; }
+.a4-page.theme-natural .prev-item + .prev-item, .a4-page.theme-natural .prev-separator { border-top-color: #f4bab0; }
+.a4-page.theme-natural .prev-icon-wrap { background: #fdecea; }
+.a4-page.theme-natural .prev-item-title { color: #c05040; }
+.a4-page.theme-natural .prev-item-sub { color: #a04030; }
+.a4-page.theme-natural .prev-item-desc { color: #8a3828; }
+.a4-page.theme-natural .prev-footer { border-top-color: #EF9484; color: #c05040; }
+
+.a4-page.theme-energetic .prev-guide-type { color: #c05000; }
+.a4-page.theme-energetic .prev-intro { color: #8a3a00; border-bottom-color: #F77E1E; }
+.a4-page.theme-energetic .prev-item + .prev-item, .a4-page.theme-energetic .prev-separator { border-top-color: #fbb880; }
+.a4-page.theme-energetic .prev-icon-wrap { background: #fff0e0; }
+.a4-page.theme-energetic .prev-item-title { color: #c05000; }
+.a4-page.theme-energetic .prev-item-sub { color: #a04400; }
+.a4-page.theme-energetic .prev-item-desc { color: #8a3a00; }
+.a4-page.theme-energetic .prev-footer { border-top-color: #F77E1E; color: #c05000; }
+
+.a4-page.theme-cool .prev-guide-type { color: #1a90b0; }
+.a4-page.theme-cool .prev-intro { color: #0a6080; border-bottom-color: #3CBDDF; }
+.a4-page.theme-cool .prev-item + .prev-item, .a4-page.theme-cool .prev-separator { border-top-color: #8ad8ee; }
+.a4-page.theme-cool .prev-icon-wrap { background: #e0f6fc; }
+.a4-page.theme-cool .prev-item-title { color: #1a90b0; }
+.a4-page.theme-cool .prev-item-sub { color: #0a7090; }
+.a4-page.theme-cool .prev-item-desc { color: #0a6080; }
+.a4-page.theme-cool .prev-footer { border-top-color: #3CBDDF; color: #1a90b0; }
+
+.a4-page.theme-passion .prev-guide-type { color: #BB0000; }
+.a4-page.theme-passion .prev-intro { color: #800000; border-bottom-color: #BB0000; }
+.a4-page.theme-passion .prev-item + .prev-item, .a4-page.theme-passion .prev-separator { border-top-color: #dd8080; }
+.a4-page.theme-passion .prev-icon-wrap { background: #fce8e8; }
+.a4-page.theme-passion .prev-item-title { color: #BB0000; }
+.a4-page.theme-passion .prev-item-sub { color: #900000; }
+.a4-page.theme-passion .prev-item-desc { color: #800000; }
+.a4-page.theme-passion .prev-footer { border-top-color: #BB0000; color: #BB0000; }
+
+.a4-page.theme-mono .prev-guide-type { color: #666666; }
+.a4-page.theme-mono .prev-intro { color: #444444; border-bottom-color: #666666; }
+.a4-page.theme-mono .prev-item + .prev-item, .a4-page.theme-mono .prev-separator { border-top-color: #bbbbbb; }
+.a4-page.theme-mono .prev-icon-wrap { background: #f0f0f0; }
+.a4-page.theme-mono .prev-item-title { color: #666666; }
+.a4-page.theme-mono .prev-item-sub { color: #555555; }
+.a4-page.theme-mono .prev-item-desc { color: #444444; }
+.a4-page.theme-mono .prev-footer { border-top-color: #666666; color: #666666; }
+
+.prev-guide-type { font-size: 24px; font-weight: 500; text-align: center; margin-bottom: 14px; letter-spacing: 0.12em; flex-shrink: 0; }
+.prev-intro { font-size: 13px; text-align: center; line-height: 1.8; margin-bottom: 14px; padding-bottom: 18px; border-bottom: 1px solid #ccc; flex-shrink: 0; word-break: break-all; }
+.prev-items-wrap { flex: 1; display: flex; flex-direction: column; justify-content: space-around; min-height: 0; gap: 0; }
+.prev-item { display: flex; align-items: center; gap: 14px; padding: 0; }
+.prev-separator { width: 100%; height: 1px; border: none; border-top: 1px dashed #ddd; flex-shrink: 0; margin: 0; }
+.prev-icon-wrap { width: 72px; height: 72px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
+.prev-item-content { flex: 1; min-width: 0; padding-top: 2px; }
+.prev-item-title { font-size: 17px; font-weight: 800; margin-bottom: 3px; word-break: break-all; }
+.prev-item-sub { font-size: 15px; margin-bottom: 3px; font-weight: 600; }
+.prev-item-desc { font-size: 12px; line-height: 1.6; word-break: break-all; text-align: left; }
+.prev-footer { flex-shrink: 0; padding: 14px 0 0; margin-top: 14px; border-top: 1px solid #ccc; display: flex; align-items: center; justify-content: center; min-height: 60px; }
+.prev-footer-logo { max-width: 160px; max-height: 36px; object-fit: contain; }
+.prev-footer-name { font-size: 14px; font-weight: 700; letter-spacing: 0.08em; }
+
+
+/* フォント */
+.a4-page.font-gothic { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif; }
+
+.a4-page.font-mincho .prev-guide-type { font-weight: 700; }
+.a4-page.font-mincho .prev-item-title { font-weight: 900; }
+.a4-page.font-mincho { font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif; }
+.font-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 0 16px 14px; }
+.font-btn { padding: 9px 8px; border: 1.5px solid #ddd; border-radius: 8px; background: #fff; font-size: 12px; font-weight: 600; color: #666; cursor: pointer; text-align: center; transition: all 0.12s; font-family: inherit; }
+.font-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+
+/* ドラッグ＆ドロップ */
+.item-card { cursor: default; transition: opacity 0.15s, transform 0.15s; }
+.item-card.dragging { opacity: 0.4; transform: scale(0.98); }
+.item-card.drag-over { border-color: #1a1a1a; background: #f5f5f3; }
+.drag-handle { width: 20px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: grab; color: #ccc; font-size: 14px; flex-shrink: 0; user-select: none; }
+.drag-handle:hover { color: #888; }
+.drag-handle:active { cursor: grabbing; }
+/* 複製ボタン */
+.item-dup { width: 26px; height: 26px; border: none; background: none; color: #bbb; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; border-radius: 5px; flex-shrink: 0; transition: all 0.12s; }
+.item-dup:hover { background: #e8f4fd; color: #1a6eaa; }
+/* トースト */
+.toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a1a; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(8px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+/* 自動保存インジケーター */
+.autosave-indicator { font-size: 10px; color: #bbb; text-align: center; padding: 4px 0 2px; flex-shrink: 0; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; }
+.icon-modal { background: #fff; border-radius: 14px; width: 360px; max-height: 480px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
+.icon-modal-header { padding: 15px 18px; border-bottom: 1px solid #eee; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+.modal-close { width: 28px; height: 28px; border-radius: 50%; border: none; background: #f0f0ee; font-size: 15px; cursor: pointer; }
+.icon-cat-tabs { display: flex; overflow-x: auto; padding: 9px 12px 0; gap: 5px; border-bottom: 1px solid #eee; scrollbar-width: none; }
+.icon-cat-tabs::-webkit-scrollbar { display: none; }
+.icon-cat-tab { padding: 5px 11px; font-size: 11px; border-radius: 12px; border: 1px solid #ddd; background: none; color: #666; cursor: pointer; white-space: nowrap; margin-bottom: 8px; font-family: inherit; transition: all 0.12s; }
+.icon-cat-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.icon-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 11px; overflow-y: auto; flex: 1; }
+.icon-option { aspect-ratio: 1; border-radius: 8px; border: 1px solid #eee; background: #fafaf8; font-size: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.12s; }
+.icon-option:hover { background: #e4f2fb; transform: scale(1.08); }
+.manage-modal { background: #fff; border-radius: 14px; width: 350px; padding: 22px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+.manage-modal h3 { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+.saved-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; max-height: 260px; overflow-y: auto; }
+.saved-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid #eee; border-radius: 8px; background: #fafaf8; }
+.saved-item-name { font-size: 13px; font-weight: 600; }
+.saved-item-date { font-size: 10px; color: #bbb; margin-top: 2px; }
+.saved-item-actions { display: flex; gap: 5px; }
+.si-btn { padding: 4px 9px; border-radius: 5px; border: 1px solid #ddd; font-size: 11px; cursor: pointer; background: #fff; font-family: inherit; color: #555; transition: all 0.12s; }
+.si-btn:hover { background: #f0f0ee; }
+.si-btn.danger:hover { background: #fee; color: #c00; border-color: #fcc; }
+.empty-state { text-align: center; padding: 24px; color: #ccc; font-size: 13px; }
+
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .sidebar, .preview-label-row, .page-num-label { display: none !important; }
+  .app { display: block; }
+  .preview-area { padding: 0 !important; background: none !important; gap: 0 !important; display: block !important; align-items: flex-start !important; }
+  .page-wrapper { width: 794px !important; max-width: 794px !important; page-break-after: always; break-after: page; margin: 0 !important; }
+  .a4-page { width: 794px !important; height: 1123px !important; padding: 54px 52px 44px !important; border-radius: 0 !important; box-shadow: none !important; overflow: hidden !important; }
+  body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+  html { margin: 0 !important; padding: 0 !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="app-brand">Pressly</div>
+      <div class="app-title">館内案内メーカー</div>
+    </div>
+
+    <div class="page-tabs" id="page-tabs">
+      <button class="page-tab active" data-page-id="0" onclick="switchTab(0)">1ページ目</button>
+      <button class="page-tab-add" onclick="addPage()" title="ページを追加">＋</button>
+    </div>
+
+    <div class="sidebar-scroll">
+      <div id="page0-settings">
+        <div class="section-label">案内の種類</div>
+        <div class="type-selector">
+          <button class="type-btn active" onclick="setType('facility',this)">🏨 施設案内</button>
+          <button class="type-btn" onclick="setType('room',this)">🛏️ 客室案内</button>
+          <button class="type-btn" onclick="setType('custom',this)">✏️ その他（自由記入）</button>
+        </div>
+        <div class="custom-text-wrap" id="custom-text-wrap" style="display:none">
+          <input type="text" id="guide-type-text" placeholder="見出し文言を入力（最大20文字）" maxlength="20" oninput="updatePreview()">
+          <div class="custom-hint">全角20文字まで入力できます</div>
+        </div>
+
+        <div class="section-label">カラー</div>
+        <div class="color-selector">
+          <button class="color-btn active" onclick="setColor('normal',this)" style="border-color:#42210B;color:#42210B"><span class="color-swatch" style="background:#42210B"></span>ノーマル</button>
+          <button class="color-btn" onclick="setColor('chic',this)"><span class="color-swatch" style="background:#000A46"></span>シック</button>
+          <button class="color-btn" onclick="setColor('green',this)"><span class="color-swatch" style="background:#5EAA57"></span>グリーン</button>
+          <button class="color-btn" onclick="setColor('natural',this)"><span class="color-swatch" style="background:#EF9484"></span>ナチュラル</button>
+          <button class="color-btn" onclick="setColor('energetic',this)"><span class="color-swatch" style="background:#F77E1E"></span>エネルギッシュ</button>
+          <button class="color-btn" onclick="setColor('cool',this)"><span class="color-swatch" style="background:#3CBDDF"></span>クール</button>
+          <button class="color-btn" onclick="setColor('passion',this)"><span class="color-swatch" style="background:#BB0000"></span>パッション</button>
+          <button class="color-btn" onclick="setColor('mono',this)"><span class="color-swatch" style="background:#666666"></span>モノクロ</button>
+        </div>
+
+        <div class="section-label">フォント</div>
+        <div class="font-selector">
+          <button class="font-btn active" onclick="setFont('gothic',this)">ゴシック体</button>
+          <button class="font-btn" onclick="setFont('mincho',this)" style="font-family:'Hiragino Mincho ProN','Yu Mincho',serif">明朝体</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-label">導入文（全角100字まで）</div>
+        <div class="field-group">
+          <textarea id="intro-text" rows="3" oninput="updateIntroCount();updatePreview()" maxlength="100">ご滞在中のご案内です。ご不明な点はフロント（内線9番）までお気軽にお申し付けください。</textarea>
+          <div class="char-count" id="intro-char-count">0 / 100</div>
+        </div>
+
+        <div class="section-label">施設名</div>
+        <div class="logo-toggle-row">
+          <button class="toggle-switch" id="logo-toggle" onclick="toggleLogo()"></button>
+          <span class="logo-toggle-label">ロゴを使用する</span>
+        </div>
+        <div id="logo-upload-wrap" style="display:none">
+          <div class="logo-upload-area" id="logo-upload-area" onclick="document.getElementById('logo-file').click()">
+            <img id="logo-thumb" class="logo-preview-thumb" style="display:none">
+            <div class="logo-upload-label" id="logo-upload-label">＋ ロゴ画像をアップロード</div>
+            <button class="logo-clear-btn" id="logo-clear-btn" style="display:none" onclick="clearLogo(event)">✕ 削除</button>
+          </div>
+          <input type="file" id="logo-file" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+        </div>
+        <div id="facility-name-wrap">
+          <div class="field-group">
+            <input type="text" id="hotel-name" placeholder="施設名を入力（最大40文字）" value="ホテル サンプル" maxlength="40" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="divider"></div>
+      </div>
+
+      <div class="section-label">アイテム <span id="item-count" style="font-weight:400;color:#ccc"></span></div>
+      <div class="items-section" id="items-container"></div>
+      <div style="padding:0 16px 10px">
+        <button class="add-item-btn" onclick="addItem()" id="add-item-btn">＋ アイテムを追加</button>
+      </div>
+    </div>
+
+    <div class="autosave-indicator" id="autosave-indicator">自動保存：未保存</div>
+    <div class="sidebar-footer">
+      <button class="btn-primary" onclick="window.print()">🖨️ 印刷・PDF保存</button>
+      <button class="btn-secondary" onclick="openSaveModal()">💾 名前をつけて保存</button>
+      <button class="btn-secondary" onclick="openManageModal()">📂 保存済みを開く</button>
+    </div>
+  </div>
+
+  <div class="preview-area" id="preview-area">
+    <div class="preview-label-row">
+      <div class="preview-label">プレビュー（A4縦）</div>
+    </div>
+  </div>
+</div>
+
+<div id="icon-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target.id==='icon-modal-overlay')closeModal('icon-modal-overlay')">
+  <div class="icon-modal">
+    <div class="icon-modal-header">アイコンを選択 <button class="modal-close" onclick="closeModal('icon-modal-overlay')">✕</button></div>
+    <div class="icon-cat-tabs" id="cat-tabs"></div>
+    <div class="icon-grid" id="icon-grid"></div>
+  </div>
+</div>
+
+<div id="save-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target.id==='save-modal-overlay')closeModal('save-modal-overlay')">
+  <div class="manage-modal">
+    <h3>💾 名前をつけて保存</h3>
+    <div class="field-group" style="padding:0 0 14px">
+      <input type="text" id="save-name-input" placeholder="例：ホテルA 施設案内 v1" style="width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+    </div>
+    <button class="btn-primary" onclick="executeSave()">保存する</button>
+    <div style="height:7px"></div>
+    <button class="btn-secondary" onclick="closeModal('save-modal-overlay')">キャンセル</button>
+  </div>
+</div>
+
+<div id="manage-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target.id==='manage-modal-overlay')closeModal('manage-modal-overlay')">
+  <div class="manage-modal">
+    <h3>📂 保存済みデータ</h3>
+    <div class="saved-list" id="saved-list"></div>
+    <button class="btn-secondary" onclick="closeModal('manage-modal-overlay')">閉じる</button>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  '入浴・温泉':['♨️','🛁','🌊','🔥','💧','🌿','🌡️','🧖','🫧'],
+  '食事・飲食':['🍽️','🍳','🍷','☕','🍜','🥗','🥂','🍱','🍵'],
+  '客室設備':['❄️','🔒','💨','💡','🛏️','🔑','📺','📞','🧴','🪥','🪒'],
+  '通信・連絡':['📶','☎️','🏨','🚨','📡','📲'],
+  '手続き':['🔑','🏷️','📋','✅','🕐'],
+  '洗濯・アメニティ':['👕','📦','🧺','🥿','💧','👘','🧼'],
+  '自販機・購買':['🏪','🛒','🎁','🧃'],
+  '交通':['🚕','🅿️','🚌','✈️'],
+  '規則・注意':['🚭','🚬','🚪','💼','🐾','⚠️','🔇'],
+  'サービス':['🧳','📠','🛎️','⏰','👔','🗺️','💻','🧹','🗞️'],
+  'その他':['ℹ️','⭐','🌸','🗓️','🎵','🏅','🎊','🔔']
+};
+const CATS = Object.keys(ICONS);
+const COLORS = { normal:'#42210B', chic:'#000A46', green:'#5EAA57', natural:'#EF9484', energetic:'#F77E1E', cool:'#3CBDDF', passion:'#BB0000', mono:'#666666' };
+const TYPE_LABELS = { facility:'施設案内', room:'客室案内' };
+
+let currentTheme = 'normal';
+let currentFont = 'gothic';
+let currentType = 'facility';
+let logoDataUrl = null;
+let logoEnabled = false;
+let pages = [{ id:0, items:[], isFirst:true }];
+let activePageId = 0;
+let pageCounter = 1;
+let editingItemId = null;
+let editingPageId = 0;
+let currentCat = CATS[0];
+const MAX_P1 = 6, MAX_POTHER = 6;
+const TITLE_MAX = 35, DESC_MAX = 95;
+
+function makeId() { return '_'+Math.random().toString(36).substr(2,8); }
+function getPage(id) { return pages.find(p=>p.id===id); }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getGuideTypeLabel() {
+  if (currentType==='custom') return (document.getElementById('guide-type-text')||{}).value||'';
+  return TYPE_LABELS[currentType]||'施設案内';
+}
+
+function updateIntroCount() {
+  const el = document.getElementById('intro-text');
+  const cnt = document.getElementById('intro-char-count');
+  if (!el||!cnt) return;
+  const len = el.value.length;
+  cnt.textContent = len+' / 100';
+  cnt.className = 'char-count'+(len>90?' warn':'')+(len>=100?' over':'');
+}
+
+function switchTab(pageId) {
+  activePageId = pageId;
+  document.querySelectorAll('.page-tab').forEach(t=>{
+    t.classList.toggle('active', parseInt(t.dataset.pageId)===pageId);
+  });
+  document.getElementById('page0-settings').style.display = pageId===0 ? 'block' : 'none';
+  renderSidebarItems();
+  const activeWrap = document.getElementById(`page-wrapper-${pageId}`);
+  if (activeWrap) activeWrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function addPage() {
+  const newId = pageCounter++;
+  pages.push({ id:newId, items:[], isFirst:false });
+  const tabs = document.getElementById('page-tabs');
+  const addBtn = tabs.querySelector('.page-tab-add');
+  const tab = document.createElement('button');
+  tab.className = 'page-tab';
+  tab.dataset.pageId = newId;
+  tab.innerHTML = `${pages.length}ページ目 <button class="page-tab-del" onclick="deletePage(${newId},event)">✕</button>`;
+  tab.onclick = (e) => { if (!e.target.classList.contains('page-tab-del')) switchTab(newId); };
+  tabs.insertBefore(tab, addBtn);
+  buildPreviewPage(newId, pages.length);
+  switchTab(newId);
+  updatePreview();
+}
+
+function deletePage(pageId, e) {
+  e && e.stopPropagation();
+  if (!confirm('このページを削除しますか？')) return;
+  pages = pages.filter(p=>p.id!==pageId);
+  const tab = document.querySelector(`.page-tab[data-page-id="${pageId}"]`);
+  if (tab) tab.remove();
+  const wrap = document.getElementById(`page-wrapper-${pageId}`);
+  if (wrap) wrap.remove();
+  if (activePageId===pageId) switchTab(0);
+}
+
+function buildPreviewPage(pageId, pageNum) {
+  const pa = document.getElementById('preview-area');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'page-wrapper';
+  wrapper.id = `page-wrapper-${pageId}`;
+  // フッターはupdatePreviewで毎回上書きするため、ここでは空で構築
+  wrapper.innerHTML = `
+    <div class="a4-page theme-${currentTheme} font-${currentFont}" id="page-${pageId}">
+      <div class="prev-items-wrap" id="prev-items-${pageId}"></div>
+      <div class="prev-footer" id="prev-footer-${pageId}"></div>
+    </div>
+    <div class="page-num-label">${pageNum}ページ目</div>
+  `;
+  pa.appendChild(wrapper);
+  // 即座にフッターを反映
+  updatePreview();
+}
+
+function addItem() {
+  const page = getPage(activePageId);
+  const max = page.isFirst ? MAX_P1 : MAX_POTHER;
+  if (page.items.length >= max) return;
+  page.items.push({ id:makeId(), icon:'♨️', title:'', desc:'', time:'', subMode:'none', subText:'' });
+  renderSidebarItems();
+  updatePreview();
+}
+
+function removeItem(itemId) {
+  const page = getPage(activePageId);
+  page.items = page.items.filter(i=>i.id!==itemId);
+  renderSidebarItems();
+  updatePreview();
+}
+
+function updateField(itemId, field, value) {
+  const item = getPage(activePageId).items.find(i=>i.id===itemId);
+  if (item) { item[field]=value; updatePreview(); }
+}
+
+// subMode: 'none' | 'time' | 'emphasis'
+function toggleSubMode(itemId, mode) {
+  const item = getPage(activePageId).items.find(i=>i.id===itemId);
+  if (!item) return;
+  item.subMode = item.subMode===mode ? 'none' : mode;
+  renderSidebarItems();
+  updatePreview();
+}
+
+function renderSidebarItems() {
+  const page = getPage(activePageId);
+  const max = page.isFirst ? MAX_P1 : MAX_POTHER;
+  document.getElementById('item-count').textContent = `${page.items.length} / ${max}`;
+  document.getElementById('add-item-btn').style.display = page.items.length >= max ? 'none' : 'flex';
+
+  if (page.items.length === 0) {
+    document.getElementById('items-container').innerHTML = `<div class="items-empty">＋ アイテムを追加してください</div>`;
+    return;
+  }
+
+  document.getElementById('items-container').innerHTML = page.items.map(item=>{
+    const isTime = item.subMode==='time';
+    const isEmph = item.subMode==='emphasis';
+    return `
+    <div class="item-card" draggable="true" data-id="${item.id}"
+      ondragstart="onDragStart(event,'${item.id}')"
+      ondragover="onDragOver(event)"
+      ondragleave="onDragLeave(event)"
+      ondrop="onDrop(event,'${item.id}')"
+      ondragend="onDragEnd(event)">
+      <div class="item-card-header">
+        <span class="drag-handle" title="ドラッグして並び替え">⠿</span>
+        <button class="icon-picker-btn" onclick="openIconModal('${item.id}')">${item.icon}</button>
+        <input class="item-title-input" type="text" placeholder="タイトル（最大35文字）" maxlength="${TITLE_MAX}"
+          value="${escHtml(item.title)}" oninput="updateField('${item.id}','title',this.value)">
+        <button class="item-dup" onclick="duplicateItem('${item.id}')" title="複製">⧉</button>
+        <button class="item-delete" onclick="removeItem('${item.id}')">✕</button>
+      </div>
+      <textarea class="item-desc-input" rows="2" placeholder="説明文（最大95文字）" maxlength="${DESC_MAX}"
+        oninput="updateField('${item.id}','desc',this.value)">${escHtml(item.desc)}</textarea>
+      <div class="sub-toggle-row">
+        <div class="sub-toggle-group">
+          <button class="sub-toggle ${isTime?'on':''}" onclick="toggleSubMode('${item.id}','time')"></button>
+          <span class="sub-toggle-label">営業時間</span>
+        </div>
+        <span class="sub-divider">｜</span>
+        <div class="sub-toggle-group">
+          <button class="sub-toggle ${isEmph?'on':''}" onclick="toggleSubMode('${item.id}','emphasis')"></button>
+          <span class="sub-toggle-label">強調文</span>
+        </div>
+      </div>
+      ${isTime ? `<input class="sub-input" type="text" placeholder="例：14:00〜25:00（最大30文字）" maxlength="30" value="${escHtml(item.time)}" oninput="updateField('${item.id}','time',this.value)">` : ''}
+      ${isEmph ? `<input class="sub-input" type="text" placeholder="例：SSID: ABC　Pass: 1234（最大35文字）" maxlength="35" value="${escHtml(item.subText)}" oninput="updateField('${item.id}','subText',this.value)">` : ''}
+    </div>
+  `}).join('');
+}
+
+function setType(type, btn) {
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('custom-text-wrap').style.display = type==='custom' ? 'block' : 'none';
+  updatePreview();
+}
+
+
+function setFont(font, btn) {
+  currentFont = font;
+  document.querySelectorAll('.font-btn').forEach(b => { b.classList.remove('active'); });
+  btn.classList.add('active');
+  updatePreview();
+}
+
+function setColor(theme, btn) {
+  currentTheme = theme;
+  document.querySelectorAll('.color-btn').forEach(b=>{ b.classList.remove('active'); b.style.borderWidth='1.5px'; b.style.color=''; });
+  btn.classList.add('active'); btn.style.borderWidth='2.5px'; btn.style.color=COLORS[theme];
+  updatePreview();
+}
+
+function toggleLogo() {
+  logoEnabled = !logoEnabled;
+  document.getElementById('logo-toggle').classList.toggle('on', logoEnabled);
+  document.getElementById('logo-upload-wrap').style.display = logoEnabled ? 'block' : 'none';
+  document.getElementById('facility-name-wrap').style.display = logoEnabled ? 'none' : 'block';
+  updatePreview();
+}
+
+function handleLogoUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    logoDataUrl = ev.target.result;
+    document.getElementById('logo-thumb').src = logoDataUrl;
+    document.getElementById('logo-thumb').style.display = 'block';
+    document.getElementById('logo-upload-label').textContent = file.name;
+    document.getElementById('logo-upload-label').className = 'logo-upload-label loaded';
+    document.getElementById('logo-clear-btn').style.display = 'block';
+    document.getElementById('logo-upload-area').classList.add('has-logo');
+    updatePreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearLogo(e) {
+  e.stopPropagation(); logoDataUrl = null;
+  document.getElementById('logo-thumb').style.display = 'none';
+  document.getElementById('logo-upload-label').textContent = '＋ ロゴ画像をアップロード';
+  document.getElementById('logo-upload-label').className = 'logo-upload-label';
+  document.getElementById('logo-clear-btn').style.display = 'none';
+  document.getElementById('logo-upload-area').classList.remove('has-logo');
+  document.getElementById('logo-file').value = '';
+  updatePreview();
+}
+
+function updatePreview() {
+  const guideType = getGuideTypeLabel();
+  const intro = document.getElementById('intro-text').value||'';
+  const hotelName = document.getElementById('hotel-name') ? document.getElementById('hotel-name').value : '';
+  const themeClass = 'theme-'+currentTheme;
+  updateIntroCount();
+
+  pages.forEach(page=>{
+    const pageEl = document.getElementById(`page-${page.id}`);
+    if (!pageEl) return;
+    pageEl.className = `a4-page ${themeClass} font-${currentFont}`;
+    if (page.isFirst) {
+      const gt = document.getElementById('prev-guide-type');
+      if (gt) gt.textContent = guideType;
+      const it = document.getElementById('prev-intro');
+      if (it) {
+        it.textContent = intro;
+        // A4プレビュー幅でのおよそ1行文字数を基準に揃えを判定
+        // プレビューの内側幅 ÷ 文字幅で1行あたりの文字数を算出
+        // 1行の文字数をフォントサイズとボックス幅から算出して揃えを判定
+        requestAnimationFrame(() => {
+          it.style.textAlign = '';
+          const itWidth = it.clientWidth || 460;
+          // 13px和文フォントで1文字≒13px、実際は少し狭い
+          const charW = 13;
+          const charsPerLine = Math.floor(itWidth / charW);
+          it.style.textAlign = intro.length > charsPerLine ? 'left' : 'center';
+        });
+      }
+    }
+    const footer = document.getElementById(`prev-footer-${page.id}`);
+    if (footer) {
+      if (logoEnabled && logoDataUrl) footer.innerHTML = `<img class="prev-footer-logo" src="${logoDataUrl}" alt="ロゴ">`;
+      else footer.innerHTML = `<span class="prev-footer-name">${escHtml(hotelName)}</span>`;
+    }
+    const wrap = document.getElementById(`prev-items-${page.id}`);
+    if (!wrap) return;
+    const itemsHtml = page.items.map((item, idx) => {
+      let subHtml = '';
+      if (item.subMode==='time' && item.time) subHtml = `<div class="prev-item-sub">営業時間 ${escHtml(item.time)}</div>`;
+      else if (item.subMode==='emphasis' && item.subText) subHtml = `<div class="prev-item-sub">${escHtml(item.subText)}</div>`;
+      const sep = idx > 0 ? '<hr class="prev-separator">' : '';
+      return sep + `
+        <div class="prev-item">
+          <div class="prev-icon-wrap">${item.icon}</div>
+          <div class="prev-item-content">
+            <div class="prev-item-title">${escHtml(item.title)||'タイトル'}</div>
+            ${subHtml}
+            <div class="prev-item-desc">${escHtml(item.desc)||'説明文がここに入ります。'}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    wrap.innerHTML = itemsHtml;
+  });
+}
+
+function openIconModal(itemId) {
+  editingItemId=itemId; editingPageId=activePageId;
+  currentCat=CATS[0]; renderCatTabs(); renderIconGrid();
+  document.getElementById('icon-modal-overlay').style.display='flex';
+}
+function closeModal(id) { document.getElementById(id).style.display='none'; }
+function renderCatTabs() {
+  document.getElementById('cat-tabs').innerHTML = CATS.map(c=>
+    `<button class="icon-cat-tab ${c===currentCat?'active':''}" onclick="selectCat('${c}')">${c}</button>`
+  ).join('');
+}
+function selectCat(c) { currentCat=c; renderCatTabs(); renderIconGrid(); }
+function renderIconGrid() {
+  document.getElementById('icon-grid').innerHTML = ICONS[currentCat].map(icon=>
+    `<button class="icon-option" onclick="selectIcon('${icon}')">${icon}</button>`
+  ).join('');
+}
+function selectIcon(icon) {
+  const item = getPage(editingPageId).items.find(i=>i.id===editingItemId);
+  if (item) { item.icon=icon; renderSidebarItems(); updatePreview(); }
+  closeModal('icon-modal-overlay');
+}
+
+function openSaveModal() {
+  const name = document.getElementById('hotel-name')?document.getElementById('hotel-name').value:'施設';
+  document.getElementById('save-name-input').value = (name||'施設')+' — '+new Date().toLocaleDateString('ja-JP');
+  document.getElementById('save-modal-overlay').style.display='flex';
+  setTimeout(()=>document.getElementById('save-name-input').focus(),80);
+}
+function executeSave() {
+  const name = document.getElementById('save-name-input').value.trim();
+  if (!name) { alert('名前を入力してください'); return; }
+  const data = {
+    name, savedAt:new Date().toISOString(),
+    currentType, customText:document.getElementById('guide-type-text')?document.getElementById('guide-type-text').value:'',
+    hotelName:document.getElementById('hotel-name')?document.getElementById('hotel-name').value:'',
+    intro:document.getElementById('intro-text').value,
+    theme:currentTheme, font:currentFont, logoEnabled, logoDataUrl,
+    pages:JSON.parse(JSON.stringify(pages))
+  };
+  const saves=getSaves(); saves.unshift(data);
+  localStorage.setItem('hotelGuideSaves',JSON.stringify(saves.slice(0,20)));
+  closeModal('save-modal-overlay'); showToast('保存しました：' + name);
+}
+function getSaves() { try { return JSON.parse(localStorage.getItem('hotelGuideSaves')||'[]'); } catch { return []; } }
+function openManageModal() { renderSavedList(); document.getElementById('manage-modal-overlay').style.display='flex'; }
+function renderSavedList() {
+  const saves=getSaves(); const el=document.getElementById('saved-list');
+  if (!saves.length) { el.innerHTML='<div class="empty-state">保存済みデータがありません</div>'; return; }
+  el.innerHTML = saves.map((s,idx)=>`
+    <div class="saved-item">
+      <div><div class="saved-item-name">${escHtml(s.name)}</div><div class="saved-item-date">${new Date(s.savedAt).toLocaleString('ja-JP')}</div></div>
+      <div class="saved-item-actions">
+        <button class="si-btn" onclick="loadSave(${idx})">開く</button>
+        <button class="si-btn" onclick="duplicateSave(${idx})">複製</button>
+        <button class="si-btn danger" onclick="deleteSave(${idx})">削除</button>
+      </div>
+    </div>
+  `).join('');
+}
+function loadSave(idx) {
+  const s=getSaves()[idx];
+  if (!confirm(`「${s.name}」を読み込みます。現在の内容は失われます。`)) return;
+  currentType=s.currentType||'facility'; currentTheme=s.theme||'normal'; currentFont=s.font||'gothic';
+  logoEnabled=s.logoEnabled||false; logoDataUrl=s.logoDataUrl||null;
+  pages=s.pages; pageCounter=Math.max(...pages.map(p=>p.id))+1; activePageId=0;
+  if (document.getElementById('hotel-name')) document.getElementById('hotel-name').value=s.hotelName||'';
+  document.getElementById('intro-text').value=s.intro||'';
+  if (s.customText&&document.getElementById('guide-type-text')) document.getElementById('guide-type-text').value=s.customText;
+  document.getElementById('custom-text-wrap').style.display=currentType==='custom'?'block':'none';
+  document.querySelectorAll('.type-btn').forEach(b=>{
+    const t=b.textContent.includes('施設')?'facility':b.textContent.includes('客室')?'room':'custom';
+    b.classList.toggle('active',t===currentType);
+  });
+  document.querySelectorAll('.font-btn').forEach(b => { b.classList.toggle('active', b.textContent.includes(currentFont==='gothic'?'ゴシック':'明朝')); });
+  document.getElementById('logo-toggle').classList.toggle('on',logoEnabled);
+  document.getElementById('logo-upload-wrap').style.display=logoEnabled?'block':'none';
+  document.getElementById('facility-name-wrap').style.display=logoEnabled?'none':'block';
+  if (logoDataUrl) {
+    document.getElementById('logo-thumb').src=logoDataUrl; document.getElementById('logo-thumb').style.display='block';
+    document.getElementById('logo-upload-label').className='logo-upload-label loaded';
+    document.getElementById('logo-clear-btn').style.display='block';
+    document.getElementById('logo-upload-area').classList.add('has-logo');
+  }
+  const tabs=document.getElementById('page-tabs');
+  tabs.querySelectorAll('.page-tab').forEach(t=>t.remove());
+  const addBtn=tabs.querySelector('.page-tab-add');
+  const pa=document.getElementById('preview-area');
+  pa.querySelectorAll('.page-wrapper').forEach(w=>w.remove());
+  const p0wrap=document.createElement('div'); p0wrap.className='page-wrapper'; p0wrap.id='page-wrapper-0';
+  p0wrap.innerHTML=`<div class="a4-page theme-${currentTheme}" id="page-0"><div class="prev-guide-type" id="prev-guide-type">施設案内</div><div class="prev-intro" id="prev-intro"></div><div class="prev-items-wrap" id="prev-items-0"></div><div class="prev-footer" id="prev-footer-0"></div></div><div class="page-num-label">1ページ目</div>`;
+  pa.appendChild(p0wrap);
+  const t0=document.createElement('button'); t0.className='page-tab active'; t0.dataset.pageId='0'; t0.textContent='1ページ目'; t0.onclick=()=>switchTab(0);
+  tabs.insertBefore(t0,addBtn);
+  pages.filter(p=>!p.isFirst).forEach((page,i)=>{
+    buildPreviewPage(page.id,i+2);
+    const tab=document.createElement('button'); tab.className='page-tab'; tab.dataset.pageId=page.id;
+    tab.innerHTML=`${i+2}ページ目 <button class="page-tab-del" onclick="deletePage(${page.id},event)">✕</button>`;
+    tab.onclick=(e)=>{ if(!e.target.classList.contains('page-tab-del'))switchTab(page.id); };
+    tabs.insertBefore(tab,addBtn);
+  });
+  switchTab(0); updatePreview(); closeModal('manage-modal-overlay');
+}
+function duplicateSave(idx) {
+  const saves=getSaves(); const s=JSON.parse(JSON.stringify(saves[idx]));
+  s.name+='（コピー）'; s.savedAt=new Date().toISOString();
+  saves.splice(idx+1,0,s); localStorage.setItem('hotelGuideSaves',JSON.stringify(saves.slice(0,20))); renderSavedList();
+}
+function deleteSave(idx) {
+  const saves=getSaves(); if(!confirm(`「${saves[idx].name}」を削除しますか？`))return;
+  saves.splice(idx,1); localStorage.setItem('hotelGuideSaves',JSON.stringify(saves)); renderSavedList();
+}
+
+
+// ---- トースト ----
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ---- アイテム複製 ----
+function duplicateItem(itemId) {
+  const page = getPage(activePageId);
+  const max = page.isFirst ? MAX_P1 : MAX_POTHER;
+  if (page.items.length >= max) { showToast('上限に達しています'); return; }
+  const src = page.items.find(i => i.id === itemId);
+  if (!src) return;
+  const idx = page.items.indexOf(src);
+  const copy = JSON.parse(JSON.stringify(src));
+  copy.id = makeId();
+  page.items.splice(idx + 1, 0, copy);
+  renderSidebarItems();
+  updatePreview();
+  showToast('アイテムを複製しました');
+}
+
+// ---- ドラッグ＆ドロップ ----
+let dragSrcId = null;
+
+function onDragStart(e, itemId) {
+  dragSrcId = itemId;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => { const el = e.target.closest('.item-card'); if (el) el.classList.add('dragging'); }, 0);
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const card = e.target.closest('.item-card');
+  if (card && card.dataset.id !== dragSrcId) {
+    document.querySelectorAll('.item-card').forEach(c => c.classList.remove('drag-over'));
+    card.classList.add('drag-over');
+  }
+}
+
+function onDragLeave(e) {
+  const card = e.target.closest('.item-card');
+  if (card) card.classList.remove('drag-over');
+}
+
+function onDrop(e, targetId) {
+  e.preventDefault();
+  if (!dragSrcId || dragSrcId === targetId) return;
+  const page = getPage(activePageId);
+  const srcIdx = page.items.findIndex(i => i.id === dragSrcId);
+  const tgtIdx = page.items.findIndex(i => i.id === targetId);
+  if (srcIdx === -1 || tgtIdx === -1) return;
+  const [moved] = page.items.splice(srcIdx, 1);
+  page.items.splice(tgtIdx, 0, moved);
+  renderSidebarItems();
+  updatePreview();
+}
+
+function onDragEnd(e) {
+  document.querySelectorAll('.item-card').forEach(c => {
+    c.classList.remove('dragging', 'drag-over');
+  });
+  dragSrcId = null;
+}
+
+// ---- 自動保存 ----
+function getAutoSaveData() {
+  return {
+    savedAt: new Date().toISOString(),
+    currentType,
+    customText: document.getElementById('guide-type-text') ? document.getElementById('guide-type-text').value : '',
+    hotelName: document.getElementById('hotel-name') ? document.getElementById('hotel-name').value : '',
+    intro: document.getElementById('intro-text').value,
+    theme: currentTheme, font: currentFont, logoEnabled, logoDataUrl,
+    pages: JSON.parse(JSON.stringify(pages))
+  };
+}
+
+function autoSave() {
+  try {
+    localStorage.setItem('hotelGuide_autosave', JSON.stringify(getAutoSaveData()));
+    const ind = document.getElementById('autosave-indicator');
+    if (ind) {
+      const t = new Date().toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+      ind.textContent = '自動保存済み ' + t;
+    }
+  } catch(e) {}
+}
+
+function checkAutoSave() {
+  try {
+    const raw = localStorage.getItem('hotelGuide_autosave');
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (!s || !s.pages) return;
+    const t = new Date(s.savedAt).toLocaleString('ja-JP');
+    if (confirm(`前回の編集データが見つかりました（${t}）。\n復元しますか？`)) {
+      restoreFromData(s);
+    } else {
+      localStorage.removeItem('hotelGuide_autosave');
+    }
+  } catch(e) {}
+}
+
+function restoreFromData(s) {
+  currentType = s.currentType || 'facility';
+  currentTheme = s.theme || 'normal';
+  currentFont = s.font || 'gothic';
+  logoEnabled = s.logoEnabled || false;
+  logoDataUrl = s.logoDataUrl || null;
+  pages = s.pages;
+  pageCounter = Math.max(...pages.map(p => p.id)) + 1;
+  activePageId = 0;
+  if (document.getElementById('hotel-name')) document.getElementById('hotel-name').value = s.hotelName || '';
+  document.getElementById('intro-text').value = s.intro || '';
+  if (s.customText && document.getElementById('guide-type-text')) document.getElementById('guide-type-text').value = s.customText;
+  document.getElementById('custom-text-wrap').style.display = currentType === 'custom' ? 'block' : 'none';
+  document.querySelectorAll('.type-btn').forEach(b => {
+    const t = b.textContent.includes('施設') ? 'facility' : b.textContent.includes('客室') ? 'room' : 'custom';
+    b.classList.toggle('active', t === currentType);
+  });
+  document.querySelectorAll('.font-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(currentFont === 'gothic' ? 'ゴシック' : '明朝'));
+  });
+  document.getElementById('logo-toggle').classList.toggle('on', logoEnabled);
+  document.getElementById('logo-upload-wrap').style.display = logoEnabled ? 'block' : 'none';
+  document.getElementById('facility-name-wrap').style.display = logoEnabled ? 'none' : 'block';
+  if (logoDataUrl) {
+    document.getElementById('logo-thumb').src = logoDataUrl;
+    document.getElementById('logo-thumb').style.display = 'block';
+    document.getElementById('logo-upload-label').className = 'logo-upload-label loaded';
+    document.getElementById('logo-clear-btn').style.display = 'block';
+    document.getElementById('logo-upload-area').classList.add('has-logo');
+  }
+  const tabs = document.getElementById('page-tabs');
+  tabs.querySelectorAll('.page-tab').forEach(t => t.remove());
+  const addBtn = tabs.querySelector('.page-tab-add');
+  const pa = document.getElementById('preview-area');
+  pa.querySelectorAll('.page-wrapper').forEach(w => w.remove());
+  const p0wrap = document.createElement('div'); p0wrap.className = 'page-wrapper'; p0wrap.id = 'page-wrapper-0';
+  p0wrap.innerHTML = `<div class="a4-page theme-${currentTheme} font-${currentFont}" id="page-0"><div class="prev-guide-type" id="prev-guide-type">施設案内</div><div class="prev-intro" id="prev-intro"></div><div class="prev-items-wrap" id="prev-items-0"></div><div class="prev-footer" id="prev-footer-0"></div></div><div class="page-num-label">1ページ目</div>`;
+  pa.appendChild(p0wrap);
+  const t0 = document.createElement('button'); t0.className = 'page-tab active'; t0.dataset.pageId = '0'; t0.textContent = '1ページ目'; t0.onclick = () => switchTab(0);
+  tabs.insertBefore(t0, addBtn);
+  pages.filter(p => !p.isFirst).forEach((page, i) => {
+    buildPreviewPage(page.id, i + 2);
+    const tab = document.createElement('button'); tab.className = 'page-tab'; tab.dataset.pageId = page.id;
+    tab.innerHTML = `${i + 2}ページ目 <button class="page-tab-del" onclick="deletePage(${page.id},event)">✕</button>`;
+    tab.onclick = (e) => { if (!e.target.classList.contains('page-tab-del')) switchTab(page.id); };
+    tabs.insertBefore(tab, addBtn);
+  });
+  switchTab(0); updatePreview();
+}
+
+(function init() {
+  const pa = document.getElementById('preview-area');
+  const p0 = document.createElement('div'); p0.className='page-wrapper'; p0.id='page-wrapper-0';
+  p0.innerHTML=`
+    <div class="a4-page theme-normal font-gothic" id="page-0">
+      <div class="prev-guide-type" id="prev-guide-type">施設案内</div>
+      <div class="prev-intro" id="prev-intro">ご滞在中のご案内です。ご不明な点はフロント（内線9番）までお気軽にお申し付けください。</div>
+      <div class="prev-items-wrap" id="prev-items-0"></div>
+      <div class="prev-footer" id="prev-footer-0"><span class="prev-footer-name">ホテル サンプル</span></div>
+    </div>
+    <div class="page-num-label">1ページ目</div>
+  `;
+  pa.appendChild(p0);
+  renderSidebarItems(); updatePreview();
+  checkAutoSave();
+  setInterval(autoSave, 60000);
+  document.addEventListener("input", () => clearTimeout(window._asTimer) || (window._asTimer = setTimeout(autoSave, 5000)));
+})();
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>
