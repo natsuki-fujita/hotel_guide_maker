@@ -66,26 +66,27 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 
 .items-section { padding: 0 16px; flex: 1; }
 .item-card { background: #fff; border: 1px solid #e0e0de; border-radius: 8px; padding: 11px; margin-bottom: 7px; }
-.item-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.item-card-header { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 8px; }
 .icon-picker-btn { width: 44px; height: 44px; border-radius: 8px; border: 1px solid #ddd; background: #f5f5f3; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 24px; flex-shrink: 0; transition: background 0.12s; }
 .icon-picker-btn:hover { background: #ebebea; }
 .item-title-input { flex: 1; font-size: 13px; font-weight: 600; padding: 7px 9px; border: 1px solid #ddd; border-radius: 7px; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; transition: border-color 0.15s; }
 .item-title-input:focus { border-color: #999; }
-.item-delete { width: 26px; height: 26px; border: none; background: none; color: #ccc; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; border-radius: 5px; flex-shrink: 0; transition: all 0.12s; }
+.item-delete { height: 24px; padding: 0 6px; border: 1px solid #e0e0de; background: #fff; color: #aaa; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 3px; border-radius: 5px; flex-shrink: 0; transition: all 0.12s; white-space: nowrap; }
+.item-delete:hover { background: #fee; color: #c00; border-color: #fcc; }
 .item-delete:hover { background: #fee; color: #c00; }
-.item-desc-input { width: 100%; font-size: 12px; padding: 7px 9px; border: 1px solid #ddd; border-radius: 7px; background: #fff; color: #1a1a1a; resize: none; font-family: inherit; line-height: 1.55; margin-bottom: 7px; outline: none; transition: border-color 0.15s; }
+.item-desc-input { width: 100%; font-size: 12px; padding: 7px 9px; border: 1px solid #ddd; border-radius: 7px; background: #fff; color: #1a1a1a; resize: none; font-family: inherit; line-height: 1.55; outline: none; transition: border-color 0.15s; }
 .item-desc-input:focus { border-color: #999; }
 
 /* 営業時間・強調文トグル行 */
-.sub-toggle-row { display: flex; align-items: center; gap: 10px; }
-.sub-toggle-group { display: flex; align-items: center; gap: 5px; }
+.sub-toggle-row { display: flex; flex-direction: column; gap: 8px; }
+.sub-toggle-group { display: flex; align-items: center; gap: 6px; }
 .sub-toggle { width: 26px; height: 15px; border-radius: 8px; background: #ddd; position: relative; cursor: pointer; border: none; transition: background 0.15s; flex-shrink: 0; }
 .sub-toggle.on { background: #1a1a1a; }
 .sub-toggle::after { content: ''; position: absolute; width: 11px; height: 11px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.15s; }
 .sub-toggle.on::after { transform: translateX(11px); }
 .sub-toggle-label { font-size: 11px; color: #aaa; white-space: nowrap; }
 .sub-input { flex: 1; font-size: 11px; padding: 4px 7px; border: 1px solid #ddd; border-radius: 5px; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; margin-top: 5px; width: 100%; }
-.sub-divider { color: #ddd; font-size: 11px; }
+.sub-divider { display: none; }
 
 .add-item-btn { width: 100%; padding: 12px; border: 1.5px dashed #bbb; border-radius: 8px; background: none; color: #888; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; font-family: inherit; }
 .add-item-btn:hover { background: #f0f0ee; border-style: solid; border-color: #888; color: #333; }
@@ -213,7 +214,8 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 .drag-handle:hover { color: #888; }
 .drag-handle:active { cursor: grabbing; }
 /* 複製ボタン */
-.item-dup { width: 26px; height: 26px; border: none; background: none; color: #bbb; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; border-radius: 5px; flex-shrink: 0; transition: all 0.12s; }
+.item-dup { height: 24px; padding: 0 6px; border: 1px solid #e0e0de; background: #fff; color: #666; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 3px; border-radius: 5px; flex-shrink: 0; transition: all 0.12s; white-space: nowrap; }
+.item-dup:hover { background: #e8f4fd; color: #1a6eaa; border-color: #b0cce0; }
 .item-dup:hover { background: #e8f4fd; color: #1a6eaa; }
 /* トースト */
 .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a1a; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transform: translateY(8px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
@@ -221,13 +223,19 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 /* 自動保存インジケーター */
 .autosave-indicator { font-size: 10px; color: #bbb; text-align: center; padding: 4px 0 2px; flex-shrink: 0; }
 
+
+.labeled-input-wrap { display: flex; flex-direction: column; gap: 3px; width: 100%; }
+.input-label { font-size: 10px; color: #888; font-weight: 600; letter-spacing: 0.04em; }
+.input-label .required { color: #c00; margin-left: 3px; }
+.input-label .optional { color: #aaa; margin-left: 3px; font-weight: 400; }
+
 /* MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; }
 .icon-modal { background: #fff; border-radius: 14px; width: 360px; max-height: 480px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
 .icon-modal-header { padding: 15px 18px; border-bottom: 1px solid #eee; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
 .modal-close { width: 28px; height: 28px; border-radius: 50%; border: none; background: #f0f0ee; font-size: 15px; cursor: pointer; }
-.icon-cat-tabs { display: flex; overflow-x: auto; padding: 9px 12px 0; gap: 5px; border-bottom: 1px solid #eee; scrollbar-width: none; }
-.icon-cat-tabs::-webkit-scrollbar { display: none; }
+.icon-cat-tabs { display: flex; flex-wrap: wrap; padding: 10px 12px 6px; gap: 5px; border-bottom: 1px solid #eee; overflow-x: visible; }
+
 .icon-cat-tab { padding: 5px 11px; font-size: 11px; border-radius: 12px; border: 1px solid #ddd; background: none; color: #666; cursor: pointer; white-space: nowrap; margin-bottom: 8px; font-family: inherit; transition: all 0.12s; }
 .icon-cat-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
 .icon-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 11px; overflow-y: auto; flex: 1; }
@@ -264,24 +272,23 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
     <div class="sidebar-header">
       <div class="app-brand">Pressly</div>
       <div class="app-title">館内案内メーカー</div>
+      <div id="active-data-title" style="display:none;margin-top:6px;font-size:11px;color:#888;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <span style="color:#bbb">編集中：</span>
+        <span id="active-data-name" style="font-weight:600;color:#555;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+        <button onclick="renameActiveData()" style="font-size:10px;color:#1a6eaa;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0">名前変更</button>
+      </div>
     </div>
 
     <div class="page-tabs" id="page-tabs">
-      <button class="page-tab active" data-page-id="0" onclick="switchTab(0)">1ページ目</button>
+      <button class="page-tab active" data-page-id="0" onclick="switchTab(0)">1ページ</button>
       <button class="page-tab-add" onclick="addPage()" title="ページを追加">＋</button>
     </div>
 
     <div class="sidebar-scroll">
       <div id="page0-settings">
-        <div class="section-label">案内の種類</div>
-        <div class="type-selector">
-          <button class="type-btn active" onclick="setType('facility',this)">🏨 施設案内</button>
-          <button class="type-btn" onclick="setType('room',this)">🛏️ 客室案内</button>
-          <button class="type-btn" onclick="setType('custom',this)">✏️ その他（自由記入）</button>
-        </div>
-        <div class="custom-text-wrap" id="custom-text-wrap" style="display:none">
-          <input type="text" id="guide-type-text" placeholder="見出し文言を入力（最大20文字）" maxlength="20" oninput="updatePreview()">
-          <div class="custom-hint">全角20文字まで入力できます</div>
+        <div class="section-label">見出し文言（最大20文字）<span style="color:#c00;font-size:10px;margin-left:4px">必須</span></div>
+        <div class="custom-text-wrap" id="custom-text-wrap" style="display:block">
+          <input type="text" id="guide-type-text" placeholder="例：施設案内／客室案内" maxlength="20" oninput="updatePreview()">
         </div>
 
         <div class="section-label">カラー</div>
@@ -304,13 +311,13 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 
         <div class="divider"></div>
 
-        <div class="section-label">導入文（全角100字まで）</div>
+        <div class="section-label">導入文（全角100字まで）<span style="color:#888;font-size:10px;margin-left:4px">任意</span></div>
         <div class="field-group">
           <textarea id="intro-text" rows="3" oninput="updateIntroCount();updatePreview()" maxlength="100">ご滞在中のご案内です。ご不明な点はフロント（内線9番）までお気軽にお申し付けください。</textarea>
           <div class="char-count" id="intro-char-count">0 / 100</div>
         </div>
 
-        <div class="section-label">施設名</div>
+        <div class="section-label">施設名<span style="color:#888;font-size:10px;margin-left:4px">任意</span></div>
         <div class="logo-toggle-row">
           <button class="toggle-switch" id="logo-toggle" onclick="toggleLogo()"></button>
           <span class="logo-toggle-label">ロゴを使用する</span>
@@ -325,13 +332,13 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
         </div>
         <div id="facility-name-wrap">
           <div class="field-group">
-            <input type="text" id="hotel-name" placeholder="施設名を入力（最大40文字）" value="ホテル サンプル" maxlength="40" oninput="updatePreview()">
+            <input type="text" id="hotel-name" placeholder="施設名を入力（任意・最大40文字）" value="ホテル サンプル" maxlength="40" oninput="updatePreview()">
           </div>
         </div>
         <div class="divider"></div>
       </div>
 
-      <div class="section-label">アイテム <span id="item-count" style="font-weight:400;color:#ccc"></span></div>
+      <div class="section-label">アイテム<span style="color:#c00;font-size:10px;margin-left:4px">必須</span> <span id="item-count" style="font-weight:400;color:#ccc"></span></div>
       <div class="items-section" id="items-container"></div>
       <div style="padding:0 16px 10px">
         <button class="add-item-btn" onclick="addItem()" id="add-item-btn">＋ アイテムを追加</button>
@@ -348,7 +355,7 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 
   <div class="preview-area" id="preview-area">
     <div class="preview-label-row">
-      <div class="preview-label">プレビュー（A4縦）</div>
+      <div class="preview-label">A4レイアウトプレビュー</div>
     </div>
   </div>
 </div>
@@ -400,8 +407,9 @@ const COLORS = { normal:'#42210B', chic:'#000A46', green:'#5EAA57', natural:'#EF
 const TYPE_LABELS = { facility:'施設案内', room:'客室案内' };
 
 let currentTheme = 'normal';
+let activeDataName = null;
 let currentFont = 'gothic';
-let currentType = 'facility';
+let currentType = 'custom';
 let logoDataUrl = null;
 let logoEnabled = false;
 let pages = [{ id:0, items:[], isFirst:true }];
@@ -417,8 +425,7 @@ function makeId() { return '_'+Math.random().toString(36).substr(2,8); }
 function getPage(id) { return pages.find(p=>p.id===id); }
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function getGuideTypeLabel() {
-  if (currentType==='custom') return (document.getElementById('guide-type-text')||{}).value||'';
-  return TYPE_LABELS[currentType]||'施設案内';
+  return (document.getElementById('guide-type-text')||{}).value||'';
 }
 
 function updateIntroCount() {
@@ -449,7 +456,7 @@ function addPage() {
   const tab = document.createElement('button');
   tab.className = 'page-tab';
   tab.dataset.pageId = newId;
-  tab.innerHTML = `${pages.length}ページ目 <button class="page-tab-del" onclick="deletePage(${newId},event)">✕</button>`;
+  tab.innerHTML = `${pages.length}ページ <button class="page-tab-del" onclick="deletePage(${newId},event)">✕</button>`;
   tab.onclick = (e) => { if (!e.target.classList.contains('page-tab-del')) switchTab(newId); };
   tabs.insertBefore(tab, addBtn);
   buildPreviewPage(newId, pages.length);
@@ -479,7 +486,7 @@ function buildPreviewPage(pageId, pageNum) {
       <div class="prev-items-wrap" id="prev-items-${pageId}"></div>
       <div class="prev-footer" id="prev-footer-${pageId}"></div>
     </div>
-    <div class="page-num-label">${pageNum}ページ目</div>
+    <div class="page-num-label">${pageNum}ページ</div>
   `;
   pa.appendChild(wrapper);
   // 即座にフッターを反映
@@ -540,26 +547,40 @@ function renderSidebarItems() {
       <div class="item-card-header">
         <span class="drag-handle" title="ドラッグして並び替え">⠿</span>
         <button class="icon-picker-btn" onclick="openIconModal('${item.id}')">${item.icon}</button>
-        <input class="item-title-input" type="text" placeholder="タイトル（最大35文字）" maxlength="${TITLE_MAX}"
-          value="${escHtml(item.title)}" oninput="updateField('${item.id}','title',this.value)">
-        <button class="item-dup" onclick="duplicateItem('${item.id}')" title="複製">⧉</button>
-        <button class="item-delete" onclick="removeItem('${item.id}')">✕</button>
+        <div class="labeled-input-wrap" style="flex:1;min-width:0">
+          <span class="input-label">タイトル<span class="required">必須</span>・最大35文字</span>
+          <input class="item-title-input" type="text" placeholder="例：大浴場" maxlength="${TITLE_MAX}"
+            value="${escHtml(item.title)}" oninput="updateField('${item.id}','title',this.value)">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-top:16px">
+          <button class="item-dup" onclick="duplicateItem('${item.id}')">⧉ 複製</button>
+          <button class="item-delete" onclick="removeItem('${item.id}')">✕ 削除</button>
+        </div>
       </div>
-      <textarea class="item-desc-input" rows="2" placeholder="説明文（最大95文字）" maxlength="${DESC_MAX}"
-        oninput="updateField('${item.id}','desc',this.value)">${escHtml(item.desc)}</textarea>
+      <div style="font-size:10px;color:#aaa;margin-bottom:5px">※ 営業時間・強調文はどちらか一方のみ入力できます</div>
       <div class="sub-toggle-row">
         <div class="sub-toggle-group">
           <button class="sub-toggle ${isTime?'on':''}" onclick="toggleSubMode('${item.id}','time')"></button>
-          <span class="sub-toggle-label">営業時間</span>
+          <div class="labeled-input-wrap" style="flex:1">
+            <span class="input-label">営業時間<span class="optional">任意</span>・最大30文字</span>
+            ${isTime ? `<input class="sub-input" type="text" placeholder="例：14:00〜25:00" maxlength="30" value="${escHtml(item.time)}" oninput="updateField('${item.id}','time',this.value)">` : ''}
+          </div>
         </div>
-        <span class="sub-divider">｜</span>
         <div class="sub-toggle-group">
           <button class="sub-toggle ${isEmph?'on':''}" onclick="toggleSubMode('${item.id}','emphasis')"></button>
-          <span class="sub-toggle-label">強調文</span>
+          <div class="labeled-input-wrap" style="flex:1">
+            <span class="input-label">強調文（自由記入）<span class="optional">任意</span>・最大35文字</span>
+            ${isEmph ? `<input class="sub-input" type="text" placeholder="例：SSID: ABC　Pass: 1234" maxlength="35" value="${escHtml(item.subText)}" oninput="updateField('${item.id}','subText',this.value)">` : ''}
+          </div>
         </div>
       </div>
-      ${isTime ? `<input class="sub-input" type="text" placeholder="例：14:00〜25:00（最大30文字）" maxlength="30" value="${escHtml(item.time)}" oninput="updateField('${item.id}','time',this.value)">` : ''}
-      ${isEmph ? `<input class="sub-input" type="text" placeholder="例：SSID: ABC　Pass: 1234（最大35文字）" maxlength="35" value="${escHtml(item.subText)}" oninput="updateField('${item.id}','subText',this.value)">` : ''}
+      <div style="margin-top:8px">
+        <div class="labeled-input-wrap">
+          <span class="input-label">コメント<span class="optional">任意</span>・最大95文字</span>
+          <textarea class="item-desc-input" rows="2" placeholder="例：ご利用の際はフロントまでお申し付けください。" maxlength="${DESC_MAX}"
+            oninput="updateField('${item.id}','desc',this.value)">${escHtml(item.desc)}</textarea>
+        </div>
+      </div>
     </div>
   `}).join('');
 }
@@ -654,8 +675,17 @@ function updatePreview() {
     }
     const footer = document.getElementById(`prev-footer-${page.id}`);
     if (footer) {
-      if (logoEnabled && logoDataUrl) footer.innerHTML = `<img class="prev-footer-logo" src="${logoDataUrl}" alt="ロゴ">`;
-      else footer.innerHTML = `<span class="prev-footer-name">${escHtml(hotelName)}</span>`;
+      if (logoEnabled && logoDataUrl) {
+        footer.style.borderTop = '';
+        footer.innerHTML = `<img class="prev-footer-logo" src="${logoDataUrl}" alt="ロゴ">`;
+      } else if (hotelName.trim()) {
+        footer.style.borderTop = '';
+        footer.innerHTML = `<span class="prev-footer-name">${escHtml(hotelName)}</span>`;
+      } else {
+        // 施設名なし・ロゴなしの場合は線も非表示
+        footer.style.borderTop = 'none';
+        footer.innerHTML = '';
+      }
     }
     const wrap = document.getElementById(`prev-items-${page.id}`);
     if (!wrap) return;
@@ -721,7 +751,7 @@ function executeSave() {
   };
   const saves=getSaves(); saves.unshift(data);
   localStorage.setItem('hotelGuideSaves',JSON.stringify(saves.slice(0,20)));
-  closeModal('save-modal-overlay'); showToast('保存しました：' + name);
+  closeModal('save-modal-overlay'); updateActiveTitle(name); showToast('保存しました：' + name);
 }
 function getSaves() { try { return JSON.parse(localStorage.getItem('hotelGuideSaves')||'[]'); } catch { return []; } }
 function openManageModal() { renderSavedList(); document.getElementById('manage-modal-overlay').style.display='flex'; }
@@ -733,6 +763,7 @@ function renderSavedList() {
       <div><div class="saved-item-name">${escHtml(s.name)}</div><div class="saved-item-date">${new Date(s.savedAt).toLocaleString('ja-JP')}</div></div>
       <div class="saved-item-actions">
         <button class="si-btn" onclick="loadSave(${idx})">開く</button>
+        <button class="si-btn" onclick="renameSave(${idx})">名前変更</button>
         <button class="si-btn" onclick="duplicateSave(${idx})">複製</button>
         <button class="si-btn danger" onclick="deleteSave(${idx})">削除</button>
       </div>
@@ -769,18 +800,18 @@ function loadSave(idx) {
   const pa=document.getElementById('preview-area');
   pa.querySelectorAll('.page-wrapper').forEach(w=>w.remove());
   const p0wrap=document.createElement('div'); p0wrap.className='page-wrapper'; p0wrap.id='page-wrapper-0';
-  p0wrap.innerHTML=`<div class="a4-page theme-${currentTheme}" id="page-0"><div class="prev-guide-type" id="prev-guide-type">施設案内</div><div class="prev-intro" id="prev-intro"></div><div class="prev-items-wrap" id="prev-items-0"></div><div class="prev-footer" id="prev-footer-0"></div></div><div class="page-num-label">1ページ目</div>`;
+  p0wrap.innerHTML=`<div class="a4-page theme-${currentTheme}" id="page-0"><div class="prev-guide-type" id="prev-guide-type">施設案内</div><div class="prev-intro" id="prev-intro"></div><div class="prev-items-wrap" id="prev-items-0"></div><div class="prev-footer" id="prev-footer-0"></div></div><div class="page-num-label">1ページ</div>`;
   pa.appendChild(p0wrap);
-  const t0=document.createElement('button'); t0.className='page-tab active'; t0.dataset.pageId='0'; t0.textContent='1ページ目'; t0.onclick=()=>switchTab(0);
+  const t0=document.createElement('button'); t0.className='page-tab active'; t0.dataset.pageId='0'; t0.textContent='1ページ'; t0.onclick=()=>switchTab(0);
   tabs.insertBefore(t0,addBtn);
   pages.filter(p=>!p.isFirst).forEach((page,i)=>{
     buildPreviewPage(page.id,i+2);
     const tab=document.createElement('button'); tab.className='page-tab'; tab.dataset.pageId=page.id;
-    tab.innerHTML=`${i+2}ページ目 <button class="page-tab-del" onclick="deletePage(${page.id},event)">✕</button>`;
+    tab.innerHTML=`${i+2}ページ <button class="page-tab-del" onclick="deletePage(${page.id},event)">✕</button>`;
     tab.onclick=(e)=>{ if(!e.target.classList.contains('page-tab-del'))switchTab(page.id); };
     tabs.insertBefore(tab,addBtn);
   });
-  switchTab(0); updatePreview(); closeModal('manage-modal-overlay');
+  switchTab(0); updatePreview(); if(s.name) updateActiveTitle(s.name); updateActiveTitle(s.name); closeModal('manage-modal-overlay');
 }
 function duplicateSave(idx) {
   const saves=getSaves(); const s=JSON.parse(JSON.stringify(saves[idx]));
@@ -792,6 +823,45 @@ function deleteSave(idx) {
   saves.splice(idx,1); localStorage.setItem('hotelGuideSaves',JSON.stringify(saves)); renderSavedList();
 }
 
+
+
+function updateActiveTitle(name) {
+  activeDataName = name;
+  const wrap = document.getElementById('active-data-title');
+  const nameEl = document.getElementById('active-data-name');
+  if (name) {
+    wrap.style.display = 'flex';
+    nameEl.textContent = name;
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function renameActiveData() {
+  if (!activeDataName) return;
+  const newName = prompt('新しい名前を入力してください', activeDataName);
+  if (!newName || !newName.trim()) return;
+  // localStorageの保存データも更新
+  const saves = getSaves();
+  const idx = saves.findIndex(s => s.name === activeDataName);
+  if (idx !== -1) {
+    saves[idx].name = newName.trim();
+    localStorage.setItem('hotelGuideSaves', JSON.stringify(saves));
+  }
+  updateActiveTitle(newName.trim());
+  showToast('名前を変更しました');
+}
+
+function renameSave(idx) {
+  const saves = getSaves();
+  const newName = prompt('新しい名前を入力してください', saves[idx].name);
+  if (!newName || !newName.trim()) return;
+  saves[idx].name = newName.trim();
+  localStorage.setItem('hotelGuideSaves', JSON.stringify(saves));
+  if (activeDataName === saves[idx].name) updateActiveTitle(newName.trim());
+  renderSavedList();
+  showToast('名前を変更しました');
+}
 
 // ---- トースト ----
 function showToast(msg) {
@@ -936,18 +1006,18 @@ function restoreFromData(s) {
   const pa = document.getElementById('preview-area');
   pa.querySelectorAll('.page-wrapper').forEach(w => w.remove());
   const p0wrap = document.createElement('div'); p0wrap.className = 'page-wrapper'; p0wrap.id = 'page-wrapper-0';
-  p0wrap.innerHTML = `<div class="a4-page theme-${currentTheme} font-${currentFont}" id="page-0"><div class="prev-guide-type" id="prev-guide-type">施設案内</div><div class="prev-intro" id="prev-intro"></div><div class="prev-items-wrap" id="prev-items-0"></div><div class="prev-footer" id="prev-footer-0"></div></div><div class="page-num-label">1ページ目</div>`;
+  p0wrap.innerHTML = `<div class="a4-page theme-${currentTheme} font-${currentFont}" id="page-0"><div class="prev-guide-type" id="prev-guide-type">施設案内</div><div class="prev-intro" id="prev-intro"></div><div class="prev-items-wrap" id="prev-items-0"></div><div class="prev-footer" id="prev-footer-0"></div></div><div class="page-num-label">1ページ</div>`;
   pa.appendChild(p0wrap);
   const t0 = document.createElement('button'); t0.className = 'page-tab active'; t0.dataset.pageId = '0'; t0.textContent = '1ページ目'; t0.onclick = () => switchTab(0);
   tabs.insertBefore(t0, addBtn);
   pages.filter(p => !p.isFirst).forEach((page, i) => {
     buildPreviewPage(page.id, i + 2);
     const tab = document.createElement('button'); tab.className = 'page-tab'; tab.dataset.pageId = page.id;
-    tab.innerHTML = `${i + 2}ページ目 <button class="page-tab-del" onclick="deletePage(${page.id},event)">✕</button>`;
+    tab.innerHTML = `${i + 2}ページ <button class="page-tab-del" onclick="deletePage(${page.id},event)">✕</button>`;
     tab.onclick = (e) => { if (!e.target.classList.contains('page-tab-del')) switchTab(page.id); };
     tabs.insertBefore(tab, addBtn);
   });
-  switchTab(0); updatePreview();
+  switchTab(0); updatePreview(); if(s.name) updateActiveTitle(s.name);
 }
 
 (function init() {
@@ -960,7 +1030,7 @@ function restoreFromData(s) {
       <div class="prev-items-wrap" id="prev-items-0"></div>
       <div class="prev-footer" id="prev-footer-0"><span class="prev-footer-name">ホテル サンプル</span></div>
     </div>
-    <div class="page-num-label">1ページ目</div>
+    <div class="page-num-label">1ページ</div>
   `;
   pa.appendChild(p0);
   renderSidebarItems(); updatePreview();
