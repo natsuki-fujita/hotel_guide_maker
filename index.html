@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>館内案内メーカー — Pressly</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; background: #f0f0ee; color: #1a1a1a; min-height: 100vh; }
+body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; background: #f0f0ee; color: #1a1a1a; min-height: 100vh; }
 .app { display: flex; height: 100vh; }
 
 .sidebar { width: 340px; min-width: 340px; border-right: 1px solid #e0e0de; display: flex; flex-direction: column; background: #fafaf8; overflow: hidden; }
@@ -27,7 +27,7 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 .page-tab-del:hover { color: #c00; background: #fee; }
 
 .sidebar-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
-.section-label { font-size: 10px; font-weight: 700; color: #bbb; letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 20px 7px; }
+.section-label { font-size: 11px; font-weight: 500; color: #666; padding: 14px 20px 6px; letter-spacing: 0; text-transform: none; }
 
 .type-selector { display: flex; flex-direction: column; gap: 6px; padding: 0 16px 14px; }
 .type-btn { padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; text-align: left; transition: all 0.15s; font-family: inherit; display: flex; align-items: center; gap: 8px; }
@@ -88,8 +88,8 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 .sub-input { flex: 1; font-size: 11px; padding: 4px 7px; border: 1px solid #ddd; border-radius: 5px; background: #fff; color: #1a1a1a; font-family: inherit; outline: none; margin-top: 5px; width: 100%; }
 .sub-divider { display: none; }
 
-.add-item-btn { width: 100%; padding: 12px; border: 1.5px dashed #bbb; border-radius: 8px; background: none; color: #888; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; font-family: inherit; }
-.add-item-btn:hover { background: #f0f0ee; border-style: solid; border-color: #888; color: #333; }
+.add-item-btn { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #555; font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; font-family: inherit; }
+.add-item-btn:hover { background: #f5f5f5; color: #1a1a1a; }
 .items-empty { text-align: center; padding: 20px; color: #ccc; font-size: 13px; border: 1.5px dashed #e0e0de; border-radius: 8px; margin-bottom: 10px; }
 
 .sidebar-footer { padding: 12px 16px; border-top: 1px solid #e0e0de; display: flex; flex-direction: column; gap: 7px; flex-shrink: 0; }
@@ -229,6 +229,37 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 .input-label .required { color: #c00; margin-left: 3px; }
 .input-label .optional { color: #aaa; margin-left: 3px; font-weight: 400; }
 
+
+/* 必須・任意バッジ */
+.badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+.badge-required { background: #f0f0f0; color: #555; }
+.badge-optional { background: #f7f7f7; color: #aaa; }
+/* アイテムカード redesign */
+.item-card { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 14px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.item-card.dragging { opacity: 0.4; transform: scale(0.98); }
+.item-card.drag-over { border-color: #1a1a1a; }
+.item-field-label { font-size: 11px; color: #666; display: block; margin-bottom: 4px; font-weight: 500; }
+.item-field-label .badge { font-weight: 400; }
+.item-input { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; font-size: 13px; font-family: inherit; transition: border-color .15s; background: #fff; color: #1a1a1a; }
+.item-input:focus { outline: none; border-color: #888; }
+.item-textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; font-size: 13px; font-family: inherit; transition: border-color .15s; background: #fff; color: #1a1a1a; resize: none; line-height: 1.55; }
+.item-textarea:focus { outline: none; border-color: #888; }
+.item-field { margin-bottom: 10px; }
+.item-field:last-child { margin-bottom: 0; }
+.item-toggle-row { display: flex; align-items: flex-start; gap: 8px; }
+.item-toggle-track { width: 32px; height: 18px; border-radius: 9px; background: #ddd; position: relative; cursor: pointer; border: none; transition: background .2s; flex-shrink: 0; margin-top: 2px; }
+.item-toggle-track.on { background: #1a1a1a; }
+.item-toggle-track::after { content: ''; width: 14px; height: 14px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.item-toggle-track.on::after { left: 16px; }
+.item-toggle-content { flex: 1; min-width: 0; }
+.item-toggle-note { font-size: 10px; color: #aaa; margin-bottom: 6px; }
+.item-act-btn { height: 26px; padding: 0 10px; border-radius: 6px; border: 1px solid #e0e0e0; background: #fff; color: #555; font-size: 11px; font-family: inherit; cursor: pointer; transition: all .15s; white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
+.item-act-btn:hover { background: #f5f5f5; color: #1a1a1a; }
+.item-act-btn.danger:hover { background: #fee; color: #c00; border-color: #fcc; }
+.item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.drag-handle { width: 16px; display: flex; align-items: center; justify-content: center; cursor: grab; color: #ccc; font-size: 13px; flex-shrink: 0; user-select: none; }
+.drag-handle:hover { color: #888; }
+
 /* MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; }
 .icon-modal { background: #fff; border-radius: 14px; width: 360px; max-height: 480px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
@@ -270,8 +301,11 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 <div class="app">
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="app-brand">Pressly</div>
-      <div class="app-title">館内案内メーカー</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:2px">
+        <div class="app-title">館内案内メーカー</div>
+        <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJf6buSIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDkuNjQiIGhlaWdodD0iMTQ2LjY3IiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDUwOS42NCAxNDYuNjciPjxkZWZzPjxzdHlsZT4uY2xzLTF7bWFzazp1cmwoI21hc2spO30uY2xzLTJ7ZmlsdGVyOnVybCgjbHVtaW5vc2l0eS1pbnZlcnQpO30uY2xzLTN7ZmlsbDojMDQwMDAwO30uY2xzLTR7ZmlsbDp1cmwoI1/lkI3np7DmnKroqK3lrprjgrDjg6njg4fjg7zjgrfjg6fjg7NfNCk7fTwvc3R5bGU+PGZpbHRlciBpZD0ibHVtaW5vc2l0eS1pbnZlcnQiIHg9IjIwLjMxIiB5PSI3LjYzIiB3aWR0aD0iNDY1LjMxIiBoZWlnaHQ9IjEzOS40NSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiPjxmZUNvbG9yTWF0cml4IHJlc3VsdD0iY20iIHZhbHVlcz0iLTEgMCAwIDAgMSAwIC0xIDAgMCAxIDAgMCAtMSAwIDEgMCAwIDAgMSAwIi8+PC9maWx0ZXI+PG1hc2sgaWQ9Im1hc2siIHg9IjIwLjMxIiB5PSI3LjYzIiB3aWR0aD0iNDY1LjMxIiBoZWlnaHQ9IjEzOS40NSIgbWFza1VuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PGcgY2xhc3M9ImNscy0yIj48cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Im03MS44OSwxMTAuNzdjLTguODMsMC0xNi45MS01LjU5LTE4LjkxLTEyLjQ3bC02LjAyLDMyLjg3aC01LjcyYy01LjIsMC04LjUtMi4wOC04LjY1LTcuNjctLjA0LTEuNDMuMzEtMy4xMi42NS00LjgxbDguMi00My43OGMyLjI3LTEyLjM0LDcuODUtMzcuMjksMzYuOTUtMzcuMjksNC40MiwwLDI5LjY5LDIuNzMsMzAuNDEsMjkuNzUuMiwxMi4zNC02LjI2LDQzLjM5LTM2LjkyLDQzLjM5Wm01LjA2LTU5LjM3Yy0xNS40NiwwLTIwLjA2LDE3LjgtMTkuNzYsMjkuMjMuMzIsMTIuMjEsNy44MywxNi4xMSwxNC45OCwxNi4xMSwxNC41NSwwLDIwLjEyLTE1LjU5LDE5LjkxLTI4LjQ1LS4yNy0xMC4xMy02LjAzLTE2Ljg5LTE1LjEzLTE2Ljg5WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0ibTE2NC45NCw0OC40MWwtMS4yNyw1Ljk4aC0uNjVjLTIuNjUtMS45NS01LjM5LTIuNDctOC42NC0yLjQ3LTkuNjEsMC0xMy4xOSw3LjQtMTQuODksMTYuNWwtNy41LDQwLjc5aC01LjJjLTUuNTksMC04LjktMi42LTkuMDUtOC4xOC0uMDMtMS4xNy4wNi0yLjQ3LjI5LTMuNzdsNi4wNC0zMi4wOWMyLjUxLTEzLjEyLDEwLjU5LTI3LjE1LDI3LjYtMjcuMTUsNy4xNSwwLDEzLjMxLDIuMzQsMTMuNDYsNy43OS4wMi43OC0uMDgsMS44Mi0uMTksMi42WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0ibTE5MS4yNiw4MC43NmgtOC43bC4wMywxLjNjLjM3LDE0LjE2LDExLjMyLDE1LjMzLDE3LjY4LDE1LjMzLDkuMjIsMCwxNS44LTEuOTUsMjEuNDEtNS45OGguNTJsLS42Niw0LjU1Yy0xLjQ0LDkuNDgtMTAuOTEsMTQuOTQtMjYuMzcsMTQuOTQtOS43NCwwLTI4LjItNS4zMy0yOC44NS0yOS44OHYtLjUyYy0uMTUtMTAuMjYsNy4zLTQzLDM5LTQzLDcuNjYsMCwyNS4yLDQuOTQsMjUuNjUsMjEuODMuMzksMTQuODEtOS4xOCwyMS40NC0zOS43MSwyMS40NFptMTIuMi0zMC4wMWMtMTIuNDcsMC0xNy45MiwxMC4xMy0xOS4zMywxNS44NWwtLjU4LDIuNDdoOC4zMWM1Ljk4LDAsMTEuMDMtLjM5LDE0LjUzLS45MSw1LjY5LS45MSw5LjM5LTMuMzgsOS4yNy04LjE4LS4xOS03LjAyLTYuMzUtOS4yMi0xMi4yLTkuMjJaIi8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJtMjk0LjQ2LDUzLjA5bC0uOTEsNC44MWgtLjM5Yy0zLjc1LTQuMjktMTEuODctNi43Ni0xOC44OS02Ljc2LTUuOTgsMC0xNS40NC45MS0xNS4zNiw4LjgzLjEsMy43NywzLjI2LDUuMzMsMTMuNiw4LjMxLDkuOTUsMi44NiwxNy41MSw4LjcsMTcuNzQsMTcuNTQuMzQsMTIuNzMtOS42LDI1LjA3LTMxLjQzLDI1LjA3LTEwLjkxLDAtMjAuNjUtNC42OC0yMC44NS0xMi4yMS0uMDMtMS4xNy0uMDctMi42LjE2LTMuOWwxLjA1LTQuNjhoLjI2YzQuMTUsNC41NSwxMy4wNSw3LjI3LDIwLjU5LDcuMjcsNi4xMSwwLDE0LjE0LS42NSwxMy45MS05LjYxLS4xMi00LjY4LTQuOTctNi4yNC0xNS4xOS05LjQ4LTkuNTctMy4xMi0xNS43OS03LjUzLTE2LjAyLTE2LjM3LS4yMy04LjgzLDYuNjMtMjQuMjksMzEuNTgtMjQuMjksOS43NCwwLDIwLjIzLDMuNjQsMjAuNDUsMTEuOTUuMDMsMS4wNC0uMDcsMi4zNC0uMywzLjUxWiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0ibTM1OC4zNyw1My4wOWwtLjkxLDQuODFoLS4zOWMtMy43NS00LjI5LTExLjg3LTYuNzYtMTguODktNi43Ni01Ljk4LDAtMTUuNDQuOTEtMTUuMzYsOC44My4xLDMuNzcsMy4yNiw1LjMzLDEzLjYsOC4zMSw5Ljk1LDIuODYsMTcuNTEsOC43LDE3Ljc0LDE3LjU0LjM0LDEyLjczLTkuNiwyNS4wNy0zMS40MywyNS4wNy0xMC45MSwwLTIwLjY1LTQuNjgtMjAuODUtMTIuMjEtLjAzLTEuMTctLjA3LTIuNi4xNi0zLjlsMS4wNS00LjY4aC4yNmM0LjE1LDQuNTUsMTMuMDUsNy4yNywyMC41OSw3LjI3LDYuMTEsMCwxNC4xNC0uNjUsMTMuOTEtOS42MS0uMTItNC42OC00Ljk3LTYuMjQtMTUuMTktOS40OC05LjU3LTMuMTItMTUuNzktNy41My0xNi4wMi0xNi4zNy0uMjMtOC44Myw2LjYzLTI0LjI5LDMxLjU4LTI0LjI5LDkuNzQsMCwyMC4yMywzLjY0LDIwLjQ1LDExLjk1LjAzLDEuMDQtLjA3LDIuMzQtLjMsMy41MVoiLz48cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Im0zOTguMzQsMTAwLjc3Yy0xLjExLDcuMDItNi42NCw5LjIyLTEzLjc5LDkuMjItOS42MSwwLTE3LjI5LTUuMzMtMTcuNTctMTYuMTEtLjA4LTIuODYsMC00Ljk0LjQ2LTcuMTVsMTMuMy03MS44NGg1LjMzYzUuNzIsMCw5LjE2LDIuNDcsOS4zMSw4LjE4LjAzLDEuMy0uMDYsMi43My0uNDEsNC4yOWwtMTAuODEsNTcuOTRjLS4yMywxLjE3LS4zMywyLjM0LS4zLDMuMzguMTcsNi4zNyw1LjI2LDcuMjgsMTEuMSw3LjI4aDQuMTZsLS43OCw0LjgxWiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0ibTQ3NC4wMiw0OS4xOWMtNC44NCwxMy4zOC0xNC44OSwzMS4zMS0yNS4zOSw0Ny4xNi0xNi4xMiwyNC4yOS0yNS45NSwzNS44Ni0zOS41OSwzNS44Ni03LjkyLDAtOS42MS00LjY4LTkuNjgtNy41NC0uMDItLjc4LS4wMy0xLjE3LjItMi4zNGwuODEtMy45aDcuMjhjOC4xOCwwLDEzLjA2LTcuNDEsMTcuNTUtMTQuMTYtNi43Ni0xNC45NC0xMi41LTQwLjQtMTMuMDItNjAuMDJsLS4xMy01LjA3aDguMzFjNC44MSwwLDcuODgsMy4xMiw4LjE0LDguMDUuMDQsMS40My4yMiwzLjM4LjM5LDQuODEsMS4xMiwxMi43MywzLjEzLDI1LjIsNy4wOSwzNy4yOSw5Ljc3LTEzLjY0LDIwLjc4LTM0LjgyLDI1LjU3LTUwLjE1aDcuOTJjMy43NywwLDYuMDEsMS4zLDYuMSw0LjU1LjA1LDEuODItLjgxLDMuNjQtMS41NCw1LjQ2WiIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0ibTQ2Ni42MSwxMDYuMzRsLTEuMDMtMi4xN2gtMS4wNHYyLjE3aC0uOXYtNS4zNmgxLjgyYzEuMjMsMCwxLjk3LjU0LDEuOTcsMS42LDAsLjc0LS4zNSwxLjIxLS45NywxLjQ0bDEuMTQsMi4zMmgtLjk5Wm0tMS4yMS0yLjk1Yy43NiwwLDEuMTMtLjIsMS4xMy0uODFzLS4zNy0uODItMS4xMy0uODJoLS44NnYxLjYyaC44NloiLz48cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Im00NjUuNDIsMTA5LjcxYy0zLjI5LDAtNS45Ni0yLjY3LTUuOTYtNS45NnMyLjY3LTUuOTYsNS45Ni01Ljk2LDUuOTYsMi42Nyw1Ljk2LDUuOTYtMi42Nyw1Ljk2LTUuOTYsNS45NlptMC0xMC45OGMtMi43NywwLTUuMDIsMi4yNS01LjAyLDUuMDJzMi4yNSw1LjAyLDUuMDIsNS4wMiw1LjAyLTIuMjUsNS4wMi01LjAyLTIuMjUtNS4wMi01LjAyLTUuMDJaIi8+PC9nPjwvbWFzaz48bGluZWFyR3JhZGllbnQgaWQ9Il/lkI3np7DmnKroqK3lrprjgrDjg6njg4fjg7zjgrfjg6fjg7NfNCIgeDE9IjE2NC42MSIgeTE9IjIzMC4zOSIgeDI9IjM0MS4zMiIgeTI9Ii03NS42OCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2ZmYjYwMCIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiNmY2JlMDgiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmOWNkMTYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48ZyBjbGFzcz0iY2xzLTEiPjxyZWN0IGNsYXNzPSJjbHMtNCIgeD0iMjAuMzEiIHk9IjcuNjMiIHdpZHRoPSI0NjUuMzEiIGhlaWdodD0iMTM5LjQ1Ii8+PC9nPjwvc3ZnPg==" alt="Pressly" style="height:20px;width:auto;opacity:0.85;flex-shrink:0">
+      </div>
+      <div class="app-brand" style="margin-top:2px">Pressly</div>
       <div id="active-data-title" style="display:none;margin-top:6px;font-size:11px;color:#888;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
         <span style="color:#bbb">編集中：</span>
         <span id="active-data-name" style="font-weight:600;color:#555;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
@@ -286,7 +320,7 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 
     <div class="sidebar-scroll">
       <div id="page0-settings">
-        <div class="section-label">見出し文言（最大20文字）<span style="color:#c00;font-size:10px;margin-left:4px">必須</span></div>
+        <div class="section-label">見出し文言（最大20文字）<span class="badge badge-required">必須</span></div>
         <div class="custom-text-wrap" id="custom-text-wrap" style="display:block">
           <input type="text" id="guide-type-text" placeholder="例：施設案内／客室案内" maxlength="20" oninput="updatePreview()">
         </div>
@@ -311,13 +345,13 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
 
         <div class="divider"></div>
 
-        <div class="section-label">導入文（全角100字まで）<span style="color:#888;font-size:10px;margin-left:4px">任意</span></div>
+        <div class="section-label">導入文（全角100字まで）<span class="badge badge-optional">任意</span></div>
         <div class="field-group">
           <textarea id="intro-text" rows="3" oninput="updateIntroCount();updatePreview()" maxlength="100">ご滞在中のご案内です。ご不明な点はフロント（内線9番）までお気軽にお申し付けください。</textarea>
           <div class="char-count" id="intro-char-count">0 / 100</div>
         </div>
 
-        <div class="section-label">施設名<span style="color:#888;font-size:10px;margin-left:4px">任意</span></div>
+        <div class="section-label">施設名<span class="badge badge-optional">任意</span></div>
         <div class="logo-toggle-row">
           <button class="toggle-switch" id="logo-toggle" onclick="toggleLogo()"></button>
           <span class="logo-toggle-label">ロゴを使用する</span>
@@ -338,7 +372,7 @@ body { font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif; 
         <div class="divider"></div>
       </div>
 
-      <div class="section-label">アイテム<span style="color:#c00;font-size:10px;margin-left:4px">必須</span> <span id="item-count" style="font-weight:400;color:#ccc"></span></div>
+      <div class="section-label">アイテム<span class="badge badge-required">必須</span> <span id="item-count" style="font-weight:400;color:#ccc"></span></div>
       <div class="items-section" id="items-container"></div>
       <div style="padding:0 16px 10px">
         <button class="add-item-btn" onclick="addItem()" id="add-item-btn">＋ アイテムを追加</button>
@@ -544,43 +578,50 @@ function renderSidebarItems() {
       ondragleave="onDragLeave(event)"
       ondrop="onDrop(event,'${item.id}')"
       ondragend="onDragEnd(event)">
-      <div class="item-card-header">
+
+      <!-- ヘッダー：ドラッグ・アイコン・操作ボタン -->
+      <div class="item-header">
         <span class="drag-handle" title="ドラッグして並び替え">⠿</span>
         <button class="icon-picker-btn" onclick="openIconModal('${item.id}')">${item.icon}</button>
-        <div class="labeled-input-wrap" style="flex:1;min-width:0">
-          <span class="input-label">タイトル<span class="required">必須</span>・最大35文字</span>
-          <input class="item-title-input" type="text" placeholder="例：大浴場" maxlength="${TITLE_MAX}"
-            value="${escHtml(item.title)}" oninput="updateField('${item.id}','title',this.value)">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-top:16px">
-          <button class="item-dup" onclick="duplicateItem('${item.id}')">⧉ 複製</button>
-          <button class="item-delete" onclick="removeItem('${item.id}')">✕ 削除</button>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="item-act-btn" onclick="duplicateItem('${item.id}')">⧉ 複製</button>
+          <button class="item-act-btn danger" onclick="removeItem('${item.id}')">✕ 削除</button>
         </div>
       </div>
-      <div style="font-size:10px;color:#aaa;margin-bottom:5px">※ 営業時間・強調文はどちらか一方のみ入力できます</div>
-      <div class="sub-toggle-row">
-        <div class="sub-toggle-group">
-          <button class="sub-toggle ${isTime?'on':''}" onclick="toggleSubMode('${item.id}','time')"></button>
-          <div class="labeled-input-wrap" style="flex:1">
-            <span class="input-label">営業時間<span class="optional">任意</span>・最大30文字</span>
-            ${isTime ? `<input class="sub-input" type="text" placeholder="例：14:00〜25:00" maxlength="30" value="${escHtml(item.time)}" oninput="updateField('${item.id}','time',this.value)">` : ''}
+
+      <!-- タイトル -->
+      <div class="item-field">
+        <label class="item-field-label">タイトル <span class="badge badge-required">必須</span> 最大35文字</label>
+        <input class="item-input" type="text" placeholder="例：大浴場" maxlength="${TITLE_MAX}"
+          value="${escHtml(item.title)}" oninput="updateField('${item.id}','title',this.value)">
+      </div>
+
+      <!-- 営業時間 -->
+      <div class="item-field">
+        <div class="item-toggle-note">営業時間・強調文はどちらか一方のみ</div>
+        <div class="item-toggle-row" style="margin-bottom:6px">
+          <button class="item-toggle-track ${isTime?'on':''}" onclick="toggleSubMode('${item.id}','time')"></button>
+          <div class="item-toggle-content">
+            <label class="item-field-label" style="margin-bottom:${isTime?'4px':'0'}">営業時間 <span class="badge badge-optional">任意</span> 最大30文字</label>
+            ${isTime ? `<input class="item-input" type="text" placeholder="例：14:00〜25:00" maxlength="30" value="${escHtml(item.time)}" oninput="updateField('${item.id}','time',this.value)">` : ''}
           </div>
         </div>
-        <div class="sub-toggle-group">
-          <button class="sub-toggle ${isEmph?'on':''}" onclick="toggleSubMode('${item.id}','emphasis')"></button>
-          <div class="labeled-input-wrap" style="flex:1">
-            <span class="input-label">強調文（自由記入）<span class="optional">任意</span>・最大35文字</span>
-            ${isEmph ? `<input class="sub-input" type="text" placeholder="例：SSID: ABC　Pass: 1234" maxlength="35" value="${escHtml(item.subText)}" oninput="updateField('${item.id}','subText',this.value)">` : ''}
+        <div class="item-toggle-row">
+          <button class="item-toggle-track ${isEmph?'on':''}" onclick="toggleSubMode('${item.id}','emphasis')"></button>
+          <div class="item-toggle-content">
+            <label class="item-field-label" style="margin-bottom:${isEmph?'4px':'0'}">強調文（自由記入） <span class="badge badge-optional">任意</span> 最大35文字</label>
+            ${isEmph ? `<input class="item-input" type="text" placeholder="例：SSID: ABC　Pass: 1234" maxlength="35" value="${escHtml(item.subText)}" oninput="updateField('${item.id}','subText',this.value)">` : ''}
           </div>
         </div>
       </div>
-      <div style="margin-top:8px">
-        <div class="labeled-input-wrap">
-          <span class="input-label">コメント<span class="optional">任意</span>・最大95文字</span>
-          <textarea class="item-desc-input" rows="2" placeholder="例：ご利用の際はフロントまでお申し付けください。" maxlength="${DESC_MAX}"
-            oninput="updateField('${item.id}','desc',this.value)">${escHtml(item.desc)}</textarea>
-        </div>
+
+      <!-- コメント -->
+      <div class="item-field">
+        <label class="item-field-label">コメント <span class="badge badge-optional">任意</span> 最大95文字</label>
+        <textarea class="item-textarea" rows="2" placeholder="例：ご利用の際はフロントまでお申し付けください。" maxlength="${DESC_MAX}"
+          oninput="updateField('${item.id}','desc',this.value)">${escHtml(item.desc)}</textarea>
       </div>
+
     </div>
   `}).join('');
 }
