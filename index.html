@@ -260,6 +260,26 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 .drag-handle { width: 16px; display: flex; align-items: center; justify-content: center; cursor: grab; color: #ccc; font-size: 13px; flex-shrink: 0; user-select: none; }
 .drag-handle:hover { color: #888; }
 
+
+/* カスタムツールチップ */
+.tooltip-wrap { position: relative; display: inline-flex; }
+.tooltip-wrap .tooltip-text {
+  display: none;
+  position: fixed;
+  background: rgba(30,30,30,0.92);
+  color: #fff;
+  font-size: 11px;
+  font-family: 'Noto Sans JP', sans-serif;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transform: translateX(-50%);
+}
+.tooltip-wrap:hover .tooltip-text { display: block; }
+
 /* MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; }
 .icon-modal { background: #fff; border-radius: 14px; width: 360px; max-height: 480px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
@@ -269,7 +289,7 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 
 .icon-cat-tab { padding: 5px 11px; font-size: 11px; border-radius: 12px; border: 1px solid #ddd; background: none; color: #666; cursor: pointer; white-space: nowrap; margin-bottom: 8px; font-family: inherit; transition: all 0.12s; }
 .icon-cat-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-.icon-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 11px; overflow-y: auto; flex: 1; }
+.icon-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 11px; overflow-y: auto; overflow-x: visible; flex: 1; }
 .icon-option { aspect-ratio: 1; border-radius: 8px; border: 1px solid #eee; background: #fafaf8; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.12s; padding: 6px; }
 .icon-option:hover { background: #e4f2fb; transform: scale(1.08); }
 .manage-modal { background: #fff; border-radius: 14px; width: 350px; padding: 22px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
@@ -653,9 +673,12 @@ function renderSidebarItems() {
       <!-- ヘッダー：ドラッグ・アイコン・操作ボタン -->
       <div class="item-header">
         <span class="drag-handle" title="ドラッグして並び替え">⠿</span>
-        <button class="icon-picker-btn" onclick="openIconModal('${item.id}')" title="アイコンを変更">
-          <span style="width:36px;height:36px;display:flex;align-items:center;justify-content:center">${getIconSvg(item.icon,'#555555')}</span>
-        </button>
+        <div class="tooltip-wrap">
+          <button class="icon-picker-btn" onclick="openIconModal('${item.id}')">
+            <span style="width:36px;height:36px;display:flex;align-items:center;justify-content:center">${getIconSvg(item.icon,'#555555')}</span>
+          </button>
+          <span class="tooltip-text">${ICON_LABELS[item.icon]||''} ／ クリックで変更</span>
+        </div>
         <div style="margin-left:auto;display:flex;gap:6px">
           <button class="item-act-btn" onclick="duplicateItem('${item.id}')">⧉ 複製</button>
           <button class="item-act-btn danger" onclick="removeItem('${item.id}')">✕ 削除</button>
@@ -816,7 +839,7 @@ function updatePreview() {
       const sep = idx > 0 ? '<hr class="prev-separator">' : '';
       return sep + `
         <div class="prev-item">
-          <div class="prev-icon-wrap" style="color:inherit">${getIconSvg(item.icon)}</div>
+          <div class="prev-icon-wrap" style="color:inherit" title="${ICON_LABELS[item.icon]||''}">${getIconSvg(item.icon)}</div>
           <div class="prev-item-content">
             <div class="prev-item-title">${escHtml(item.title)||'タイトル'}</div>
             ${subHtml}
@@ -843,9 +866,10 @@ function renderCatTabs() {
 function selectCat(c) { currentCat=c; renderCatTabs(); renderIconGrid(); }
 function renderIconGrid() {
   document.getElementById('icon-grid').innerHTML = ICONS[currentCat].map(key=>{
-    const src = SVG_ICONS[key] || '';
     const label = ICON_LABELS[key] || key;
-    return `<button class="icon-option" onclick="selectIcon('${key}')" title="${label}">
+    return `<button class="icon-option" onclick="selectIcon('${key}')"
+      onmouseenter="showIconTooltip(event,'${label}')"
+      onmouseleave="hideIconTooltip()">
       <span style="width:32px;height:32px;display:flex;align-items:center;justify-content:center">${getIconSvgByKey(key)}</span>
     </button>`;
   }).join('');
@@ -1024,6 +1048,20 @@ function getIconSvg(key, colorOverride) {
 }
 function getIconSvgByKey(key) { return getIconSvg(key); }
 
+
+function showIconTooltip(e, label) {
+  const tip = document.getElementById('icon-tooltip');
+  tip.textContent = label;
+  tip.style.display = 'block';
+  const x = e.clientX;
+  const y = e.clientY - 36;
+  tip.style.left = x + 'px';
+  tip.style.top = y + 'px';
+}
+function hideIconTooltip() {
+  document.getElementById('icon-tooltip').style.display = 'none';
+}
+
 // ---- トースト ----
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1201,5 +1239,6 @@ function restoreFromData(s) {
 })();
 </script>
 <div class="toast" id="toast"></div>
+<div id="icon-tooltip" style="display:none;position:fixed;background:rgba(30,30,30,0.92);color:#fff;font-size:11px;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;padding:4px 10px;border-radius:5px;pointer-events:none;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.2);transform:translateX(-50%)"></div>
 </body>
 </html>
