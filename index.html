@@ -280,6 +280,84 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 }
 .tooltip-wrap:hover .tooltip-text { display: block; }
 
+
+/* ---- レスポンシブ（スマホ対応） ---- */
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e0e0de;
+    overflow-y: visible;
+    height: auto;
+  }
+  .sidebar-scroll {
+    overflow-y: visible;
+    height: auto;
+  }
+  .sidebar-footer {
+    position: sticky;
+    bottom: 0;
+    background: #fafaf8;
+    z-index: 10;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+  }
+  .preview-area {
+    width: 100%;
+    padding: 16px 12px 32px;
+    background: #e4e4e2;
+    overflow-y: visible;
+    height: auto;
+  }
+  .preview-label-row {
+    width: 100%;
+    max-width: 100%;
+  }
+  .page-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+  .a4-page {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 210 / 297;
+  }
+  .add-page-btn {
+    max-width: 100%;
+  }
+  /* タブのスクロール */
+  .page-tabs {
+    overflow-x: auto;
+  }
+  /* カラーボタン */
+  .color-selector {
+    grid-template-columns: 1fr 1fr;
+  }
+  /* フォントボタン */
+  .font-selector {
+    grid-template-columns: 1fr 1fr;
+  }
+  /* モーダルをスマホサイズに */
+  .icon-modal {
+    width: calc(100vw - 32px);
+    max-height: 80vh;
+  }
+  .manage-modal {
+    width: calc(100vw - 32px);
+    max-height: 80vh;
+  }
+  /* アイテムカードのボタン配置 */
+  .item-header {
+    flex-wrap: wrap;
+  }
+}
+
 /* MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; }
 .icon-modal { background: #fff; border-radius: 14px; width: 360px; max-height: 480px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
@@ -307,7 +385,7 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 @media print {
   @page { size: A4 portrait; margin: 0; }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  .sidebar, .preview-label-row, .page-num-label { display: none !important; }
+  .sidebar, .preview-label-row, .page-num-label, .sp-only { display: none !important; }
   .app { display: block; }
   .preview-area { padding: 0 !important; background: none !important; gap: 0 !important; display: block !important; align-items: flex-start !important; }
   .page-wrapper { width: 794px !important; max-width: 794px !important; page-break-after: always; break-after: page; margin: 0 !important; }
@@ -401,6 +479,7 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 
     <div class="autosave-indicator" id="autosave-indicator">自動保存：未保存</div>
     <div class="sidebar-footer">
+      <button class="btn-secondary sp-only" id="scroll-preview-btn" onclick="document.getElementById('preview-area').scrollIntoView({behavior:'smooth'})" style="display:none">👁 プレビューを確認する</button>
       <button class="btn-primary" onclick="window.print()">🖨️ 印刷・PDF保存</button>
       <button class="btn-secondary" onclick="openSaveModal()">💾 名前をつけて保存</button>
       <button class="btn-secondary" onclick="openManageModal()">📂 保存済みを開く</button>
@@ -1200,6 +1279,15 @@ function restoreFromData(s) {
   switchTab(0); updatePreview(); if(s.name) updateActiveTitle(s.name);
 }
 
+
+// スマホ判定してプレビューボタン表示
+function updateMobileUI() {
+  const isMobile = window.innerWidth <= 768;
+  const btn = document.getElementById('scroll-preview-btn');
+  if (btn) btn.style.display = isMobile ? 'flex' : 'none';
+}
+window.addEventListener('resize', updateMobileUI);
+
 (function init() {
   const pa = document.getElementById('preview-area');
   const p0 = document.createElement('div'); p0.className='page-wrapper'; p0.id='page-wrapper-0';
@@ -1217,6 +1305,7 @@ function restoreFromData(s) {
   checkAutoSave();
   setInterval(autoSave, 60000);
   document.addEventListener("input", () => clearTimeout(window._asTimer) || (window._asTimer = setTimeout(autoSave, 5000)));
+  updateMobileUI();
 })();
 </script>
 <div class="toast" id="toast"></div>
