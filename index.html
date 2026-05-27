@@ -375,6 +375,20 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
   }
 }
 
+
+/* 言語タブ */
+.lang-tabs { display: flex; gap: 6px; padding: 10px 16px 0; flex-shrink: 0; }
+.lang-tab { flex: 1; padding: 9px 8px; border-radius: 8px 8px 0 0; border: 1px solid #ddd; border-bottom: none; background: #f0f0ee; font-size: 13px; font-weight: 600; color: #888; cursor: pointer; font-family: inherit; transition: all 0.15s; text-align: center; position: relative; bottom: -1px; }
+.lang-tab.active { background: #fff; color: #1a1a1a; border-color: #e0e0de; border-bottom-color: #fff; font-weight: 700; }
+.lang-tab .lang-flag { margin-right: 5px; }
+.lang-divider { height: 1px; background: #e0e0de; margin: 0 0 4px; flex-shrink: 0; }
+/* 翻訳ボタン */
+.translate-btn { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #555; font-size: 12px; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; margin-bottom: 10px; }
+.translate-btn:hover { background: #e8f4fd; border-color: #b0cce0; color: #1a6eaa; }
+.translate-item-btn { height: 22px; padding: 0 8px; border: 1px solid #ddd; border-radius: 5px; background: #fff; color: #888; font-size: 10px; font-family: inherit; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+.translate-item-btn:hover { background: #e8f4fd; color: #1a6eaa; border-color: #b0cce0; }
+.en-mode-note { font-size: 10px; color: #aaa; padding: 4px 16px 8px; flex-shrink: 0; }
+
 /* MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; }
 .icon-modal { background: #fff; border-radius: 14px; width: 360px; max-height: 480px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
@@ -429,6 +443,12 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
       </div>
     </div>
 
+    <!-- 言語タブ -->
+    <div class="lang-tabs">
+      <button class="lang-tab active" id="lang-tab-ja" onclick="setLang('ja')">日本語で作成</button>
+      <button class="lang-tab" id="lang-tab-en" onclick="setLang('en')">英語で作成</button>
+    </div>
+    <div class="lang-divider"></div>
     <div class="page-tabs" id="page-tabs">
       <button class="page-tab active" data-page-id="0" onclick="switchTab(0)">1ページ</button>
       <button class="page-tab-add" onclick="addPage()" title="ページを追加">＋</button>
@@ -436,7 +456,7 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 
     <div class="sidebar-scroll">
       <div id="page0-settings">
-        <div class="section-label">見出し文言（最大20文字）<span class="badge badge-required">必須</span></div>
+        <div class="section-label" id="guide-type-label">見出し文言（最大20文字）<span class="badge badge-required">必須</span></div>
         <div class="custom-text-wrap" id="custom-text-wrap" style="display:block">
           <input type="text" id="guide-type-text" placeholder="例：施設案内／客室案内" maxlength="20" oninput="updatePreview()">
         </div>
@@ -461,10 +481,10 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 
         <div class="divider"></div>
 
-        <div class="section-label">導入文（全角100字まで）<span class="badge badge-optional">任意</span></div>
+        <div class="section-label" id="intro-label">導入文（全角100字まで）<span class="badge badge-optional">任意</span></div>
         <div class="field-group">
           <textarea id="intro-text" rows="3" oninput="updateIntroCount();updatePreview()" maxlength="100">ご滞在中のご案内です。ご不明な点はフロント（内線9番）までお気軽にお申し付けください。</textarea>
-          <div class="char-count" id="intro-char-count">0 / 100</div>
+
         </div>
 
         <div class="section-label">施設名<span class="badge badge-optional">任意</span></div>
@@ -476,7 +496,7 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
           <div class="logo-upload-area" id="logo-upload-area" onclick="document.getElementById('logo-file').click()">
             <img id="logo-thumb" class="logo-preview-thumb" style="display:none">
             <div class="logo-upload-label" id="logo-upload-label">＋ ロゴ画像をアップロード</div>
-            <button class="logo-clear-btn" id="logo-clear-btn" style="display:none" onclick="clearLogo(event)">✕ 削除</button>
+            <button class="logo-clear-btn" id="logo-clear-btn" style="display:none" onclick="clearLogo(event)"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10"/></svg> 削除</button>
           </div>
           <input type="file" id="logo-file" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
         </div>
@@ -488,6 +508,10 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
         <div class="divider"></div>
       </div>
 
+      <div id="translate-all-wrap" style="display:none;padding:0 16px 4px">
+        <button class="translate-btn" onclick="translateAllItems()"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><circle cx="10" cy="10" r="7"/><path d="M10 3c-2 2-3 4.5-3 7s1 5 3 7M10 3c2 2 3 4.5 3 7s-1 5-3 7M3 10h14"/></svg> 全アイテムをGoogle翻訳で開く</button>
+        <div class="en-mode-note" style="padding:0 0 6px">※ 英語版は日本語版とは別に保存されます</div>
+      </div>
       <div class="section-label">アイテム<span class="badge badge-required">必須</span> <span id="item-count" style="font-weight:400;color:#ccc"></span></div>
       <div class="items-section" id="items-container"></div>
       <div style="padding:0 16px 10px">
@@ -497,10 +521,10 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 
     <div class="autosave-indicator" id="autosave-indicator">自動保存：未保存</div>
     <div class="sidebar-footer">
-      <button class="btn-secondary sp-only" id="scroll-preview-btn" onclick="document.getElementById('preview-area').scrollIntoView({behavior:'smooth'})" style="display:none">👁 プレビューを確認する</button>
-      <button class="btn-primary" onclick="window.print()">🖨️ 印刷・PDF保存</button>
-      <button class="btn-secondary" onclick="openSaveModal()">💾 名前をつけて保存</button>
-      <button class="btn-secondary" onclick="openManageModal()">📂 保存済みを開く</button>
+      <button class="btn-secondary sp-only" id="scroll-preview-btn" onclick="document.getElementById('preview-area').scrollIntoView({behavior:'smooth'})" style="display:none"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z"/><circle cx="10" cy="10" r="2.5"/></svg> プレビューを確認する</button>
+      <button class="btn-primary" onclick="window.print()"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M5 7V3h10v4M5 15H3a1 1 0 01-1-1V9a1 1 0 011-1h14a1 1 0 011 1v5a1 1 0 01-1 1h-2M5 11h10v6H5v-6z"/></svg> 印刷・PDF保存</button>
+      <button class="btn-secondary" onclick="openSaveModal()"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M4 3h9l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z"/><rect x="7" y="13" width="6" height="4" rx="0.5"/><rect x="6" y="3" width="7" height="4" rx="0.5"/></svg> 名前をつけて保存</button>
+      <button class="btn-secondary" onclick="openManageModal()"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M2 6a2 2 0 012-2h3l2 2h7a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg> 保存済みを開く</button>
     </div>
   </div>
 
@@ -513,7 +537,7 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 
 <div id="icon-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target.id==='icon-modal-overlay')closeModal('icon-modal-overlay')">
   <div class="icon-modal">
-    <div class="icon-modal-header">アイコンを選択 <button class="modal-close" onclick="closeModal('icon-modal-overlay')">✕</button></div>
+    <div class="icon-modal-header">アイコンを選択 <button class="modal-close" onclick="closeModal('icon-modal-overlay')">×</button></div>
     <div class="icon-cat-tabs" id="cat-tabs"></div>
     <div class="icon-grid" id="icon-grid"></div>
   </div>
@@ -521,7 +545,7 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 
 <div id="save-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target.id==='save-modal-overlay')closeModal('save-modal-overlay')">
   <div class="manage-modal">
-    <h3>💾 名前をつけて保存</h3>
+    <h3><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M4 3h9l4 4v10a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z"/><rect x="7" y="13" width="6" height="4" rx="0.5"/><rect x="6" y="3" width="7" height="4" rx="0.5"/></svg> 名前をつけて保存</h3>
     <div class="field-group" style="padding:0 0 14px">
       <input type="text" id="save-name-input" placeholder="例：ホテルA 施設案内 v1" style="width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;outline:none">
     </div>
@@ -533,7 +557,7 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 
 <div id="manage-modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target.id==='manage-modal-overlay')closeModal('manage-modal-overlay')">
   <div class="manage-modal">
-    <h3>📂 保存済みデータ</h3>
+    <h3><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M2 6a2 2 0 012-2h3l2 2h7a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg> 保存済みデータ</h3>
     <div class="saved-list" id="saved-list"></div>
     <button class="btn-secondary" onclick="closeModal('manage-modal-overlay')">閉じる</button>
   </div>
@@ -676,12 +700,13 @@ function switchTab(pageId) {
 function addPage() {
   const newId = pageCounter++;
   pages.push({ id:newId, items:[], isFirst:false });
+  enPages.push({ id:newId, items:[], isFirst:false });
   const tabs = document.getElementById('page-tabs');
   const addBtn = tabs.querySelector('.page-tab-add');
   const tab = document.createElement('button');
   tab.className = 'page-tab';
   tab.dataset.pageId = newId;
-  tab.innerHTML = `${pages.length}ページ <button class="page-tab-del" onclick="deletePage(${newId},event)">✕</button>`;
+  tab.innerHTML = `${pages.length}ページ <button class="page-tab-del" onclick="deletePage(${newId},event)">×</button>`;
   tab.onclick = (e) => { if (!e.target.classList.contains('page-tab-del')) switchTab(newId); };
   tabs.insertBefore(tab, addBtn);
   buildPreviewPage(newId, pages.length);
@@ -693,6 +718,7 @@ function deletePage(pageId, e) {
   e && e.stopPropagation();
   if (!confirm('このページを削除しますか？')) return;
   pages = pages.filter(p=>p.id!==pageId);
+  enPages = enPages.filter(p=>p.id!==pageId);
   const tab = document.querySelector(`.page-tab[data-page-id="${pageId}"]`);
   if (tab) tab.remove();
   const wrap = document.getElementById(`page-wrapper-${pageId}`);
@@ -721,29 +747,43 @@ function buildPreviewPage(pageId, pageNum) {
 }
 
 function addItem() {
-  const page = getPage(activePageId);
+  let page;
+  if (currentLang === 'en') {
+    page = getEnPage(activePageId);
+    if (!page) { page = { id: activePageId, items: [], isFirst: activePageId === 0 }; enPages.push(page); }
+  } else {
+    page = getPage(activePageId);
+  }
+  if (!page) return;
   const max = page.isFirst ? MAX_P1 : MAX_POTHER;
   if (page.items.length >= max) return;
   page.items.push({ id:makeId(), icon:'onsen', title:'', desc:'', time:'', subMode:'none', subText:'' });
-  renderSidebarItems();
-  updatePreview();
+  renderSidebarItems(); updatePreview();
 }
 
 function removeItem(itemId) {
-  const page = getPage(activePageId);
-  page.items = page.items.filter(i=>i.id!==itemId);
-  renderSidebarItems();
-  updatePreview();
+  if (currentLang === 'en') {
+    const ep = getEnPage(activePageId);
+    if (ep) ep.items = ep.items.filter(i=>i.id!==itemId);
+  } else {
+    const p = getPage(activePageId);
+    if (p) p.items = p.items.filter(i=>i.id!==itemId);
+  }
+  renderSidebarItems(); updatePreview();
 }
 
 function updateField(itemId, field, value) {
-  const item = getPage(activePageId).items.find(i=>i.id===itemId);
+  const page = currentLang === 'en' ? getEnPage(activePageId) : getPage(activePageId);
+  if (!page) return;
+  const item = page.items.find(i=>i.id===itemId);
   if (item) { item[field]=value; updatePreview(); }
 }
 
 // subMode: 'none' | 'time' | 'emphasis'
 function toggleSubMode(itemId, mode) {
-  const item = getPage(activePageId).items.find(i=>i.id===itemId);
+  const page = currentLang === 'en' ? getEnPage(activePageId) : getPage(activePageId);
+  if (!page) return;
+  const item = page.items.find(i=>i.id===itemId);
   if (!item) return;
   item.subMode = item.subMode===mode ? 'none' : mode;
   renderSidebarItems();
@@ -751,77 +791,128 @@ function toggleSubMode(itemId, mode) {
 }
 
 function renderSidebarItems() {
-  const page = getPage(activePageId);
+  // 英語モード時はenPagesを使用
+  const page = currentLang === 'en'
+    ? (getEnPage(activePageId) || { id: activePageId, items: [], isFirst: activePageId === 0 })
+    : getPage(activePageId);
   const max = page.isFirst ? MAX_P1 : MAX_POTHER;
+  const lim = getCurrentLimits();
   document.getElementById('item-count').textContent = `${page.items.length} / ${max}`;
   document.getElementById('add-item-btn').style.display = page.items.length >= max ? 'none' : 'flex';
 
-  if (page.items.length === 0) {
+  // 英語モードでアイテムが0件の場合：日本語版アイテム数に合わせて空欄を生成
+  if (currentLang === 'en') {
+    // enPagesに該当ページがなければ追加
+    if (!enPages.find(p => p.id === activePageId)) {
+      enPages.push({ id: activePageId, items: [], isFirst: activePageId === 0 });
+    }
+    // enPages内のオブジェクトを直接参照
+    const enPageRef = enPages.find(p => p.id === activePageId);
+    if (enPageRef && enPageRef.items.length === 0) {
+      const jaPage = getPage(activePageId);
+      if (jaPage && jaPage.items.length > 0) {
+        jaPage.items.forEach(jaItem => {
+          enPageRef.items.push({ id: makeId(), icon: jaItem.icon, title: '', desc: '', time: '', subMode: 'none', subText: '' });
+        });
+      }
+    }
+  }
+  // 再取得して確実に最新のページを使う
+  const activePage = currentLang === 'en'
+    ? getEnPage(activePageId)
+    : getPage(activePageId);
+
+  if (!activePage || activePage.items.length === 0) {
     document.getElementById('items-container').innerHTML = `<div class="items-empty">＋ アイテムを追加してください</div>`;
     return;
   }
 
-  document.getElementById('items-container').innerHTML = page.items.map(item=>{
+  document.getElementById('item-count').textContent = `${activePage.items.length} / ${max}`;
+  document.getElementById('add-item-btn').style.display = activePage.items.length >= max ? 'none' : 'flex';
+
+  document.getElementById('items-container').innerHTML = activePage.items.map(item=>{
     const isTime = item.subMode==='time';
     const isEmph = item.subMode==='emphasis';
-    return `
-    <div class="item-card" draggable="true" data-id="${item.id}"
-      ondragstart="onDragStart(event,'${item.id}')"
-      ondragover="onDragOver(event)"
-      ondragleave="onDragLeave(event)"
-      ondrop="onDrop(event,'${item.id}')"
-      ondragend="onDragEnd(event)">
+    const isEn = currentLang === 'en';
+    const lim = getCurrentLimits();
+    const timeLabel = '営業時間';  // 作成画面は常に日本語
+    const emphLabel = '強調文（自由記入）';
+    const titlePh = isEn ? '' : '例：大浴場';
+    const timePh2 = isEn ? '' : '例：14:00〜25:00';
+    const emphPh2 = isEn ? '' : '例：SSID: ABC　Pass: 1234';
+    const descPh = isEn ? '' : '例：ご利用の際はフロントまでお申し付けください。';
+    const titleLimLabel = isEn ? '最大半角50文字' : '最大35文字';
+    const subLimLabel = isEn ? '最大半角60文字' : (isTime ? '最大30文字' : '最大35文字');
+    const descLimLabel = isEn ? '最大半角170文字' : '最大95文字';
+    const toggleNote = '営業時間・強調文はどちらか一方のみ';
+    const reqLabel = '必須';
+    const optLabel = '任意';
+    const titleSectionLabel = 'タイトル';
+    const descSectionLabel = 'コメント';
+    const dupBtn = isEn ? '' : '';
 
-      <!-- ヘッダー：ドラッグ・アイコン・操作ボタン -->
-      <div class="item-header">
-        <span class="drag-handle" title="ドラッグして並び替え">⠿</span>
-        <div class="tooltip-wrap">
-          <button class="icon-picker-btn" onclick="openIconModal('${item.id}')">
-            <span style="width:36px;height:36px;display:flex;align-items:center;justify-content:center">${getIconSvg(item.icon,'#555555')}</span>
-          </button>
-          <span class="tooltip-text">${ICON_LABELS[item.icon]||''} ／ クリックで変更</span>
-        </div>
-        <div style="margin-left:auto;display:flex;gap:6px">
-          <button class="item-act-btn" onclick="duplicateItem('${item.id}')">⧉ 複製</button>
-          <button class="item-act-btn danger" onclick="removeItem('${item.id}')">✕ 削除</button>
-        </div>
-      </div>
+    // 入力欄をHTMLとして事前構築（テンプレートリテラルネストを避ける）
+    const timeInput = isTime
+      ? '<input class="item-input" type="text" placeholder="' + timePh2 + '" maxlength="' + lim.sub + '" value="' + escHtml(item.time) + '" oninput="updateField(\'' + item.id + '\',\'time\',this.value)">'
+      : '';
+    const emphInput = isEmph
+      ? '<input class="item-input" type="text" placeholder="' + emphPh2 + '" maxlength="' + lim.sub + '" value="' + escHtml(item.subText) + '" oninput="updateField(\'' + item.id + '\',\'subText\',this.value)">'
+      : '';
+    const translateBtn = '';
 
-      <!-- タイトル -->
-      <div class="item-field">
-        <label class="item-field-label">タイトル <span class="badge badge-required">必須</span> 最大35文字</label>
-        <input class="item-input" type="text" placeholder="例：大浴場" maxlength="${TITLE_MAX}"
-          value="${escHtml(item.title)}" oninput="updateField('${item.id}','title',this.value)">
-      </div>
+    return '<div class="item-card" draggable="true" data-id="' + item.id + '"'
+      + ' ondragstart="onDragStart(event,\'' + item.id + '\')"'
+      + ' ondragover="onDragOver(event)"'
+      + ' ondragleave="onDragLeave(event)"'
+      + ' ondrop="onDrop(event,\'' + item.id + '\')"'
+      + ' ondragend="onDragEnd(event)">'
 
-      <!-- 営業時間 -->
-      <div class="item-field">
-        <div class="item-toggle-note">営業時間・強調文はどちらか一方のみ</div>
-        <div class="item-toggle-row" style="margin-bottom:6px">
-          <button class="item-toggle-track ${isTime?'on':''}" onclick="toggleSubMode('${item.id}','time')"></button>
-          <div class="item-toggle-content">
-            <label class="item-field-label" style="margin-bottom:${isTime?'4px':'0'}">営業時間 <span class="badge badge-optional">任意</span> 最大30文字</label>
-            ${isTime ? `<input class="item-input" type="text" placeholder="例：14:00〜25:00" maxlength="30" value="${escHtml(item.time)}" oninput="updateField('${item.id}','time',this.value)">` : ''}
-          </div>
-        </div>
-        <div class="item-toggle-row">
-          <button class="item-toggle-track ${isEmph?'on':''}" onclick="toggleSubMode('${item.id}','emphasis')"></button>
-          <div class="item-toggle-content">
-            <label class="item-field-label" style="margin-bottom:${isEmph?'4px':'0'}">強調文（自由記入） <span class="badge badge-optional">任意</span> 最大35文字</label>
-            ${isEmph ? `<input class="item-input" type="text" placeholder="例：SSID: ABC　Pass: 1234" maxlength="35" value="${escHtml(item.subText)}" oninput="updateField('${item.id}','subText',this.value)">` : ''}
-          </div>
-        </div>
-      </div>
+      // ヘッダー
+      + '<div class="item-header">'
+      + '<span class="drag-handle" title="ドラッグして並び替え">⠿</span>'
+      + '<div class="tooltip-wrap">'
+      + '<button class="icon-picker-btn" onclick="openIconModal(\'' + item.id + '\')">'
+      + '<span style="width:36px;height:36px;display:flex;align-items:center;justify-content:center">' + getIconSvg(item.icon,'#555555') + '</span>'
+      + '</button>'
+      + '<span class="tooltip-text">' + (ICON_LABELS[item.icon]||'') + ' ／ クリックで変更</span>'
+      + '</div>'
+      + '<div style="margin-left:auto;display:flex;gap:6px">'
+      + translateBtn
+      + '<button class="item-act-btn" onclick="duplicateItem(\'' + item.id + '\')"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M3 13V4a1 1 0 011-1h9"/></svg> 複製</button>'
+      + '<button class="item-act-btn danger" onclick="removeItem(\'' + item.id + '\')"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10"/></svg> 削除</button>'
+      + '</div></div>'
 
-      <!-- コメント -->
-      <div class="item-field">
-        <label class="item-field-label">コメント <span class="badge badge-optional">任意</span> 最大95文字</label>
-        <textarea class="item-textarea" rows="2" placeholder="例：ご利用の際はフロントまでお申し付けください。" maxlength="${DESC_MAX}"
-          oninput="updateField('${item.id}','desc',this.value)">${escHtml(item.desc)}</textarea>
-      </div>
+      // タイトル
+      + '<div class="item-field">'
+      + '<label class="item-field-label">' + titleSectionLabel + ' <span class="badge badge-required">' + reqLabel + '</span> ' + titleLimLabel + '</label>'
+      + '<input class="item-input" type="text" placeholder="' + titlePh + '" maxlength="' + lim.title + '" value="' + escHtml(item.title) + '" oninput="updateField(\'' + item.id + '\',\'title\',this.value)">'
+      + '</div>'
 
-    </div>
-  `}).join('');
+      // 営業時間・強調文
+      + '<div class="item-field">'
+      + '<div class="item-toggle-note">' + toggleNote + '</div>'
+      + '<div class="item-toggle-row" style="margin-bottom:6px">'
+      + '<button class="item-toggle-track' + (isTime ? ' on' : '') + '" onclick="toggleSubMode(\'' + item.id + '\',\'time\')"></button>'
+      + '<div class="item-toggle-content">'
+      + '<label class="item-field-label" style="margin-bottom:' + (isTime ? '4px' : '0') + '">' + timeLabel + ' <span class="badge badge-optional">' + optLabel + '</span> ' + (isEn ? '最大半角60文字' : '最大30文字') + '</label>'
+      + timeInput
+      + '</div></div>'
+      + '<div class="item-toggle-row">'
+      + '<button class="item-toggle-track' + (isEmph ? ' on' : '') + '" onclick="toggleSubMode(\'' + item.id + '\',\'emphasis\')"></button>'
+      + '<div class="item-toggle-content">'
+      + '<label class="item-field-label" style="margin-bottom:' + (isEmph ? '4px' : '0') + '">' + emphLabel + ' <span class="badge badge-optional">' + optLabel + '</span> ' + (isEn ? '最大半角60文字' : '最大35文字') + '</label>'
+      + emphInput
+      + '</div></div>'
+      + '</div>'
+
+      // コメント
+      + '<div class="item-field">'
+      + '<label class="item-field-label">' + descSectionLabel + ' <span class="badge badge-optional">' + optLabel + '</span> ' + descLimLabel + '</label>'
+      + '<textarea class="item-textarea" rows="2" placeholder="' + descPh + '" maxlength="' + lim.desc + '" oninput="updateField(\'' + item.id + '\',\'desc\',this.value)">' + escHtml(item.desc) + '</textarea>'
+      + '</div>'
+
+      + '</div>';
+  }).join('');
 }
 
 function setType(type, btn) {
@@ -896,7 +987,16 @@ function updatePreview() {
   const themeClass = 'theme-'+currentTheme;
   updateIntroCount();
 
-  pages.forEach(page=>{
+  // 英語モード時はenPagesとpagesのページ数を同期
+  if (currentLang === 'en') {
+    pages.forEach(p => {
+      if (!enPages.find(ep => ep.id === p.id)) {
+        enPages.push({ id: p.id, items: [], isFirst: p.isFirst });
+      }
+    });
+  }
+  const renderPages = currentLang === 'en' ? enPages : pages;
+  renderPages.forEach(page=>{
     const pageEl = document.getElementById(`page-${page.id}`);
     if (!pageEl) return;
     pageEl.className = `a4-page ${themeClass} font-${currentFont}`;
@@ -937,7 +1037,8 @@ function updatePreview() {
     if (!wrap) return;
     const itemsHtml = page.items.map((item, idx) => {
       let subHtml = '';
-      if (item.subMode==='time' && item.time) subHtml = `<div class="prev-item-sub">営業時間 ${escHtml(item.time)}</div>`;
+      const subLabel = currentLang === 'en' ? 'Opening hours' : '営業時間';
+      if (item.subMode==='time' && item.time) subHtml = `<div class="prev-item-sub">${subLabel} ${escHtml(item.time)}</div>`;
       else if (item.subMode==='emphasis' && item.subText) subHtml = `<div class="prev-item-sub">${escHtml(item.subText)}</div>`;
       const sep = idx > 0 ? '<hr class="prev-separator">' : '';
       return sep + `
@@ -998,7 +1099,8 @@ function executeSave() {
     hotelName:document.getElementById('hotel-name')?document.getElementById('hotel-name').value:'',
     intro:document.getElementById('intro-text').value,
     theme:currentTheme, font:currentFont, logoEnabled, logoDataUrl,
-    pages:JSON.parse(JSON.stringify(pages))
+    pages:JSON.parse(JSON.stringify(pages)),
+    enPages:JSON.parse(JSON.stringify(enPages))
   };
   const saves=getSaves(); saves.unshift(data);
   localStorage.setItem('hotelGuideSaves',JSON.stringify(saves.slice(0,20)));
@@ -1025,6 +1127,7 @@ function loadSave(idx) {
   const s=getSaves()[idx];
   if (!confirm(`「${s.name}」を読み込みます。現在の内容は失われます。`)) return;
   currentType=s.currentType||'facility'; currentTheme=s.theme||'normal'; currentFont=s.font||'gothic';
+  if(s.enPages) enPages=s.enPages; else enPages=[{ id:0, items:[], isFirst:true }];
   logoEnabled=s.logoEnabled||false; logoDataUrl=s.logoDataUrl||null;
   pages=s.pages; pageCounter=Math.max(...pages.map(p=>p.id))+1; activePageId=0;
   if (document.getElementById('hotel-name')) document.getElementById('hotel-name').value=s.hotelName||'';
@@ -1058,7 +1161,7 @@ function loadSave(idx) {
   pages.filter(p=>!p.isFirst).forEach((page,i)=>{
     buildPreviewPage(page.id,i+2);
     const tab=document.createElement('button'); tab.className='page-tab'; tab.dataset.pageId=page.id;
-    tab.innerHTML=`${i+2}ページ <button class="page-tab-del" onclick="deletePage(${page.id},event)">✕</button>`;
+    tab.innerHTML=`${i+2}ページ <button class="page-tab-del" onclick="deletePage(${page.id},event)">×</button>`;
     tab.onclick=(e)=>{ if(!e.target.classList.contains('page-tab-del'))switchTab(page.id); };
     tabs.insertBefore(tab,addBtn);
   });
@@ -1162,6 +1265,136 @@ document.addEventListener('mouseup', function(e) {
   setTimeout(() => card.setAttribute('draggable', 'true'), 200);
 });
 
+
+// =====================================================
+// 言語管理
+// =====================================================
+let currentLang = 'ja'; // 'ja' | 'en'
+
+// 英語版ページデータ（日本語版と並列管理）
+let enPages = [{ id: 0, items: [], isFirst: true }];
+
+const EN_LIMITS = { title: 50, desc: 170, sub: 60, intro: 170, guideType: 40 };
+const JA_LIMITS = { title: 35, desc: 95, sub: 35, intro: 100, guideType: 20 };
+
+function getCurrentPages() { return currentLang === 'ja' ? pages : enPages; }
+function getCurrentLimits() { return currentLang === 'ja' ? JA_LIMITS : EN_LIMITS; }
+
+function setLang(lang) {
+  currentLang = lang;
+
+  // タブUI
+  document.getElementById('lang-tab-ja').classList.toggle('active', lang === 'ja');
+  document.getElementById('lang-tab-en').classList.toggle('active', lang === 'en');
+
+  const isEn = lang === 'en';
+
+  // 英語モード専用UI表示切替
+  const translateWrap = document.getElementById('translate-all-wrap');
+  if (translateWrap) translateWrap.style.display = isEn ? 'block' : 'none';
+
+  // 導入文のmaxlength切替
+  const introEl = document.getElementById('intro-text');
+  if (introEl) introEl.maxLength = isEn ? EN_LIMITS.intro : JA_LIMITS.intro;
+
+  // 見出し文言のmaxlength切替
+  const guideTypeEl = document.getElementById('guide-type-text');
+  if (guideTypeEl) guideTypeEl.maxLength = isEn ? EN_LIMITS.guideType : JA_LIMITS.guideType;
+
+  // 見出し文言ラベル切替
+  const guideTypeLabel = document.getElementById('guide-type-label');
+  if (guideTypeLabel) {
+    guideTypeLabel.innerHTML = isEn
+      ? '見出し文言（最大半角40文字）<span class="badge badge-required">必須</span>'
+      : '見出し文言（最大20文字）<span class="badge badge-required">必須</span>';
+  }
+
+  // 導入文ラベル切替
+  const introLabel = document.getElementById('intro-label');
+  if (introLabel) {
+    introLabel.innerHTML = isEn
+      ? '導入文（最大半角170文字）<span class="badge badge-optional">任意</span>'
+      : '導入文（全角100字まで）<span class="badge badge-optional">任意</span>';
+  }
+
+  // 英語タブに切り替えた際、全ページの空欄を自動生成
+  if (isEn) {
+    pages.forEach(page => {
+      if (!enPages.find(p => p.id === page.id)) {
+        enPages.push({ id: page.id, items: [], isFirst: page.isFirst });
+      }
+      const enPageRef = enPages.find(p => p.id === page.id);
+      if (enPageRef && enPageRef.items.length === 0 && page.items.length > 0) {
+        page.items.forEach(jaItem => {
+          enPageRef.items.push({ id: makeId(), icon: jaItem.icon, title: '', desc: '', time: '', subMode: 'none', subText: '' });
+        });
+      }
+    });
+  }
+
+  // アイテム描画更新
+  renderSidebarItems();
+  updatePreview();
+}
+
+// enPagesをpagesのページ構成に同期（ページ数が違う場合）
+function syncEnPages() {
+  pages.forEach(page => {
+    if (!enPages.find(p => p.id === page.id)) {
+      enPages.push({ id: page.id, items: [], isFirst: page.isFirst });
+    }
+  });
+  // 不要なenPagesを削除
+  enPages = enPages.filter(ep => pages.find(p => p.id === ep.id));
+}
+
+// 英語版のgetPage
+function getEnPage(id) { return enPages.find(p => p.id === id); }
+
+// 英語モード時の翻訳ボタン：アクティブページの日本語テキストをGoogle翻訳に渡す
+function translateAllItems() {
+  const jaPage = pages.find(p => p.id === activePageId);
+  const lines = [];
+
+  // 見出し文言・導入文（1ページ目のみ）
+  if (activePageId === 0) {
+    const guideType = document.getElementById('guide-type-text');
+    const intro = document.getElementById('intro-text');
+    if (guideType && guideType.value) lines.push('[見出し] ' + guideType.value);
+    if (intro && intro.value) lines.push('[導入文] ' + intro.value);
+  }
+
+  // アイテム
+  if (jaPage && jaPage.items.length > 0) {
+    jaPage.items.forEach((item, i) => {
+      let t = '[アイテム' + (i + 1) + '] ' + (item.title || '');
+      if (item.subMode === 'time' && item.time) t += ' / 営業時間: ' + item.time;
+      if (item.subMode === 'emphasis' && item.subText) t += ' / ' + item.subText;
+      if (item.desc) t += ' / ' + item.desc;
+      lines.push(t);
+    });
+  }
+
+  if (lines.length === 0) { showToast('翻訳するテキストがありません'); return; }
+
+  // Google翻訳は5000文字制限があるため分割送信
+  const text = lines.join('\n');
+  const url = 'https://translate.google.com/?sl=ja&tl=en&text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
+}
+
+// 各アイテムの翻訳ボタン
+function translateItem(itemId) {
+  const jaPage = pages.find(p => p.id === activePageId);
+  if (!jaPage) return;
+  const jaItem = jaPage.items.find(i => i.id === itemId);
+  if (!jaItem) return;
+  let text = jaItem.title;
+  if (jaItem.desc) text += ': ' + jaItem.desc;
+  const url = 'https://translate.google.com/?sl=ja&tl=en&text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
+}
+
 // ---- トースト ----
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1172,7 +1405,13 @@ function showToast(msg) {
 
 // ---- アイテム複製 ----
 function duplicateItem(itemId) {
-  const page = getPage(activePageId);
+  let page;
+  if (currentLang === 'en') {
+    page = getEnPage(activePageId);
+    if (!page) return;
+  } else {
+    page = getPage(activePageId);
+  }
   const max = page.isFirst ? MAX_P1 : MAX_POTHER;
   if (page.items.length >= max) { showToast('上限に達しています'); return; }
   const src = page.items.find(i => i.id === itemId);
@@ -1181,8 +1420,7 @@ function duplicateItem(itemId) {
   const copy = JSON.parse(JSON.stringify(src));
   copy.id = makeId();
   page.items.splice(idx + 1, 0, copy);
-  renderSidebarItems();
-  updatePreview();
+  renderSidebarItems(); updatePreview();
   showToast('アイテムを複製しました');
 }
 
@@ -1213,14 +1451,14 @@ function onDragLeave(e) {
 function onDrop(e, targetId) {
   e.preventDefault();
   if (!dragSrcId || dragSrcId === targetId) return;
-  const page = getPage(activePageId);
+  const page = currentLang === 'en' ? getEnPage(activePageId) : getPage(activePageId);
+  if (!page) return;
   const srcIdx = page.items.findIndex(i => i.id === dragSrcId);
   const tgtIdx = page.items.findIndex(i => i.id === targetId);
   if (srcIdx === -1 || tgtIdx === -1) return;
   const [moved] = page.items.splice(srcIdx, 1);
   page.items.splice(tgtIdx, 0, moved);
-  renderSidebarItems();
-  updatePreview();
+  renderSidebarItems(); updatePreview();
 }
 
 function onDragEnd(e) {
@@ -1312,7 +1550,7 @@ function restoreFromData(s) {
   pages.filter(p => !p.isFirst).forEach((page, i) => {
     buildPreviewPage(page.id, i + 2);
     const tab = document.createElement('button'); tab.className = 'page-tab'; tab.dataset.pageId = page.id;
-    tab.innerHTML = `${i + 2}ページ <button class="page-tab-del" onclick="deletePage(${page.id},event)">✕</button>`;
+    tab.innerHTML = `${i + 2}ページ <button class="page-tab-del" onclick="deletePage(${page.id},event)">×</button>`;
     tab.onclick = (e) => { if (!e.target.classList.contains('page-tab-del')) switchTab(page.id); };
     tabs.insertBefore(tab, addBtn);
   });
