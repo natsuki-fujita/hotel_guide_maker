@@ -358,6 +358,23 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
   }
 }
 
+
+/* スマホ時のA4スケーリング */
+@media (max-width: 768px) {
+  .page-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden;
+  }
+  .a4-scale-wrap {
+    width: 794px;
+    transform-origin: top left;
+  }
+  .page-num-label {
+    width: 100% !important;
+  }
+}
+
 /* MODAL */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; }
 .icon-modal { background: #fff; border-radius: 14px; width: 360px; max-height: 480px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.2); }
@@ -386,6 +403,7 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
   @page { size: A4 portrait; margin: 0; }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   .sidebar, .preview-label-row, .page-num-label, .sp-only { display: none !important; }
+  .a4-scale-wrap { transform: none !important; width: 794px !important; margin-bottom: 0 !important; }
   .app { display: block; }
   .preview-area { padding: 0 !important; background: none !important; gap: 0 !important; display: block !important; align-items: flex-start !important; }
   .page-wrapper { width: 794px !important; max-width: 794px !important; page-break-after: always; break-after: page; margin: 0 !important; }
@@ -686,9 +704,11 @@ function buildPreviewPage(pageId, pageNum) {
   wrapper.id = `page-wrapper-${pageId}`;
   // フッターはupdatePreviewで毎回上書きするため、ここでは空で構築
   wrapper.innerHTML = `
-    <div class="a4-page theme-${currentTheme} font-${currentFont}" id="page-${pageId}">
-      <div class="prev-items-wrap" id="prev-items-${pageId}"></div>
-      <div class="prev-footer" id="prev-footer-${pageId}"></div>
+    <div class="a4-scale-wrap" id="a4-scale-${pageId}">
+      <div class="a4-page theme-${currentTheme} font-${currentFont}" id="page-${pageId}">
+        <div class="prev-items-wrap" id="prev-items-${pageId}"></div>
+        <div class="prev-footer" id="prev-footer-${pageId}"></div>
+      </div>
     </div>
     <div class="page-num-label">${pageNum}ページ</div>
   `;
@@ -866,6 +886,7 @@ function clearLogo(e) {
 }
 
 function updatePreview() {
+  setTimeout(scaleA4Pages, 50);
   const guideType = getGuideTypeLabel();
   const intro = document.getElementById('intro-text').value||'';
   const hotelName = document.getElementById('hotel-name') ? document.getElementById('hotel-name').value : '';
@@ -1281,6 +1302,30 @@ function restoreFromData(s) {
 
 
 // スマホ判定してプレビューボタン表示
+
+function scaleA4Pages() {
+  if (window.innerWidth > 768) {
+    // PC：スケールリセット
+    document.querySelectorAll('.a4-scale-wrap').forEach(el => {
+      el.style.transform = '';
+      el.style.marginBottom = '';
+    });
+    return;
+  }
+  const containerWidth = document.querySelector('.preview-area').clientWidth - 24;
+  const scale = containerWidth / 794;
+  document.querySelectorAll('.a4-scale-wrap').forEach(el => {
+    el.style.transform = `scale(${scale})`;
+    // スケール後の実際の高さに合わせてmarginを調整
+    const a4 = el.querySelector('.a4-page');
+    if (a4) {
+      const scaledHeight = a4.offsetHeight * scale;
+      el.style.marginBottom = (scaledHeight - a4.offsetHeight) + 'px';
+    }
+  });
+}
+window.addEventListener('resize', scaleA4Pages);
+
 function updateMobileUI() {
   const isMobile = window.innerWidth <= 768;
   const btn = document.getElementById('scroll-preview-btn');
@@ -1306,6 +1351,7 @@ window.addEventListener('resize', updateMobileUI);
   setInterval(autoSave, 60000);
   document.addEventListener("input", () => clearTimeout(window._asTimer) || (window._asTimer = setTimeout(autoSave, 5000)));
   updateMobileUI();
+  scaleA4Pages();
 })();
 </script>
 <div class="toast" id="toast"></div>
