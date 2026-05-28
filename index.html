@@ -1102,7 +1102,7 @@ function executeSave() {
   const data = {
     name, savedAt:new Date().toISOString(),
     currentType, customText:document.getElementById('guide-type-text')?document.getElementById('guide-type-text').value:'',
-    enGuideType, enIntro,
+    enGuideType, enIntro, jaHotelName, enHotelName,
     hotelName:document.getElementById('hotel-name')?document.getElementById('hotel-name').value:'',
     intro:document.getElementById('intro-text').value,
     theme:currentTheme, font:currentFont, logoEnabled, logoDataUrl,
@@ -1137,6 +1137,8 @@ function loadSave(idx) {
   if(s.enPages) enPages=s.enPages; else enPages=[{ id:0, items:[], isFirst:true }];
   if(s.enGuideType !== undefined) enGuideType=s.enGuideType;
   if(s.enIntro !== undefined) enIntro=s.enIntro;
+  if(s.jaHotelName !== undefined) jaHotelName=s.jaHotelName;
+  if(s.enHotelName !== undefined) enHotelName=s.enHotelName;
   logoEnabled=s.logoEnabled||false; logoDataUrl=s.logoDataUrl||null;
   pages=s.pages; pageCounter=Math.max(...pages.map(p=>p.id))+1; activePageId=0;
   if (document.getElementById('hotel-name')) document.getElementById('hotel-name').value=s.hotelName||'';
@@ -1281,6 +1283,8 @@ document.addEventListener('mouseup', function(e) {
 let currentLang = 'ja'; // 'ja' | 'en'
 let enGuideType = ''; // 英語版の見出し文言
 let enIntro = '';     // 英語版の導入文
+let jaHotelName = ''; // 日本語版の施設名
+let enHotelName = ''; // 英語版の施設名
 
 // 英語版ページデータ（日本語版と並列管理）
 let enPages = [{ id: 0, items: [], isFirst: true }];
@@ -1295,9 +1299,13 @@ function setLang(lang) {
   // 切り替え前に現在の値を保存
   const guideEl = document.getElementById('guide-type-text');
   const introEl2 = document.getElementById('intro-text');
+  const hotelEl = document.getElementById('hotel-name');
   if (currentLang === 'en') {
     enGuideType = guideEl ? guideEl.value : '';
     enIntro = introEl2 ? introEl2.value : '';
+    enHotelName = hotelEl ? hotelEl.value : '';
+  } else {
+    jaHotelName = hotelEl ? hotelEl.value : '';
   }
 
   currentLang = lang;
@@ -1333,13 +1341,16 @@ function setLang(lang) {
     guideTypeEl.placeholder = isEn ? '' : '例：施設案内／客室案内';
   }
 
-  // 施設名：英語タブ切替時に日本語版の値を初期値として引き継ぐ
+  // 施設名：言語切替時に対応する値を復元
   const hotelNameEl = document.getElementById('hotel-name');
-  if (isEn && hotelNameEl && hotelNameEl.dataset.jaValue === undefined) {
-    hotelNameEl.dataset.jaValue = hotelNameEl.value;
-  }
-  if (!isEn && hotelNameEl && hotelNameEl.dataset.jaValue !== undefined) {
-    hotelNameEl.value = hotelNameEl.dataset.jaValue;
+  if (hotelNameEl) {
+    if (isEn) {
+      // 初回のみ日本語値をenHotelNameの初期値として使用
+      if (enHotelName === '') enHotelName = hotelNameEl.value;
+      hotelNameEl.value = enHotelName;
+    } else {
+      hotelNameEl.value = jaHotelName;
+    }
   }
 
   // 見出し文言ラベル切替
