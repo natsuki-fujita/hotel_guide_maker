@@ -464,11 +464,6 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
         <button class="translate-btn" onclick="translateAllItems()"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><circle cx="10" cy="10" r="7"/><path d="M10 3c-2 2-3 4.5-3 7s1 5 3 7M10 3c2 2 3 4.5 3 7s-1 5-3 7M3 10h14"/></svg> 全アイテムをGoogle翻訳で開く</button>
         <div class="en-mode-note" style="padding:0 0 6px">※ 英語版は日本語版とは別に保存されます</div>
       </div>
-      <div class="section-label" id="guide-type-label">見出し文言（最大20文字）<span class="badge badge-required">必須</span></div>
-        <div class="custom-text-wrap" id="custom-text-wrap" style="display:block">
-          <input type="text" id="guide-type-text" placeholder="例：施設案内／客室案内" maxlength="20" oninput="updatePreview()">
-        </div>
-
         <div class="section-label">カラー</div>
         <div class="color-selector">
           <button class="color-btn active" onclick="setColor('normal',this)"><span class="color-swatch" style="background:#42210B"></span>ノーマル</button>
@@ -489,9 +484,13 @@ body { font-family: 'Noto Sans JP', -apple-system, 'Hiragino Sans', sans-serif; 
 
         <div class="divider"></div>
 
+      <div class="section-label" id="guide-type-label">見出し文言（最大20文字）<span class="badge badge-required">必須</span></div>
+      <div class="custom-text-wrap" id="custom-text-wrap" style="display:block">
+          <input type="text" id="guide-type-text" placeholder="例：施設案内／客室案内" maxlength="20" oninput="removeNewlines(this);updatePreview()" onkeydown="if(event.key==='Enter')event.preventDefault()">
+        </div>
         <div class="section-label" id="intro-label">導入文（全角100字まで）<span class="badge badge-optional">任意</span></div>
         <div class="field-group">
-          <textarea id="intro-text" rows="3" maxlength="100" oninput="handleIntroInput(this);limitNewlines(this,2);updatePreview()" onkeydown="const lines=this.value.split('\n');if(event.key==='Enter'&&lines.length>=2)event.preventDefault();">ご滞在中のご案内です。ご不明な点はフロント（内線9番）までお気軽にお申し付けください。</textarea>
+          <textarea id="intro-text" rows="3" oninput="handleIntroInput(this);limitNewlines(this,2);updatePreview()" onkeydown="const lines=this.value.split('\n');if(event.key==='Enter'&&lines.length>=2)event.preventDefault();">ご滞在中のご案内です。ご不明な点はフロント（内線9番）までお気軽にお申し付けください。</textarea>
 
         </div>
 
@@ -858,10 +857,10 @@ function renderSidebarItems() {
 
     // 入力欄をHTMLとして事前構築（テンプレートリテラルネストを避ける）
     const timeInput = isTime
-      ? '<input class="item-input" type="text" placeholder="' + timePh2 + '" maxlength="30" value="' + escHtml(item.time) + '" oninput="handleEnItemInput(this,\'time\',\'' + item.id + '\',' + lim.sub + ')" onkeydown="if(event.key===\'Enter\')event.preventDefault()">'
+      ? '<input class="item-input" type="text" placeholder="' + timePh2 + '" maxlength="30" value="' + escHtml(item.time) + '" oninput="removeNewlines(this);handleEnItemInput(this,\'time\',\'' + item.id + '\',' + lim.sub + ')" onkeydown="if(event.key===\'Enter\')event.preventDefault()">'
       : '';
     const emphInput = isEmph
-      ? '<input class="item-input" type="text" placeholder="' + emphPh2 + '" maxlength="35" value="' + escHtml(item.subText) + '" oninput="handleEnItemInput(this,\'subText\',\'' + item.id + '\',' + lim.sub + ')" onkeydown="if(event.key===\'Enter\')event.preventDefault()">'
+      ? '<input class="item-input" type="text" placeholder="' + emphPh2 + '" maxlength="35" value="' + escHtml(item.subText) + '" oninput="removeNewlines(this);handleEnItemInput(this,\'subText\',\'' + item.id + '\',' + lim.sub + ')" onkeydown="if(event.key===\'Enter\')event.preventDefault()">'
       : '';
     const translateBtn = '';
 
@@ -890,7 +889,7 @@ function renderSidebarItems() {
       // タイトル
       + '<div class="item-field">'
       + '<label class="item-field-label">' + titleSectionLabel + ' <span class="badge badge-required">' + reqLabel + '</span> ' + titleLimLabel + '</label>'
-      + '<input class="item-input" type="text" placeholder="' + titlePh + '" maxlength="' + JA_LIMITS.title + '" value="' + escHtml(item.title) + '" oninput="handleEnItemInput(this,\'title\',\'' + item.id + '\',' + lim.title + ')" onkeydown="if(event.key===\'Enter\')event.preventDefault()">'
+      + '<input class="item-input" type="text" placeholder="' + titlePh + '" maxlength="' + JA_LIMITS.title + '" value="' + escHtml(item.title) + '" oninput="removeNewlines(this);handleEnItemInput(this,\'title\',\'' + item.id + '\',' + lim.title + ')" onkeydown="if(event.key===\'Enter\')event.preventDefault()">'
       + '</div>'
 
       // 営業時間・強調文
@@ -913,7 +912,7 @@ function renderSidebarItems() {
       // コメント
       + '<div class="item-field">'
       + '<label class="item-field-label">' + descSectionLabel + ' <span class="badge badge-optional">' + optLabel + '</span> ' + descLimLabel + '</label>'
-      + '<textarea class="item-textarea" rows="2" placeholder="' + descPh + '" maxlength="95" oninput="handleEnItemInput(this,\'desc\',\'' + item.id + '\',' + lim.desc + ');limitNewlines(this,2)" onkeydown="const ln=this.value.split(\'\\n\');if(event.key===\'Enter\'&&ln.length>=2)event.preventDefault();" style="overflow:hidden">' + escHtml(item.desc) + '</textarea>'
+      + '<textarea class="item-textarea" rows="2" placeholder="' + descPh + '" oninput="handleDescInput(this,\'' + item.id + '\')" onkeydown="if(event.key===\'Enter\'&&this.value.split(\'\\n\').length>=2)event.preventDefault();">' + escHtml(item.desc) + '</textarea>'
       + '</div>'
 
       + '</div>';
@@ -1054,7 +1053,7 @@ function updatePreview() {
           <div class="prev-item-content">
             <div class="prev-item-title">${escHtml(item.title)||'タイトル'}</div>
             ${subHtml}
-            <div class="prev-item-desc">${escHtml(item.desc)||'説明文がここに入ります。'}</div>
+            <div class="prev-item-desc">${item.desc ? escHtml(item.desc).replace(/\n/g,'<br>') : '説明文がここに入ります。'}</div>
           </div>
         </div>
       `;
@@ -1471,18 +1470,25 @@ function handleIntroInput(el) {
   const isEn = currentLang === 'en';
   const limit = isEn ? EN_LIMITS.intro : JA_LIMITS.intro;
   const val = el.value;
-  let count = countChars(val, isEn);
-  // 制限超過の場合はカーソル位置を保持しつつ超過分をカット
+  const textOnly = val.replace(/\n/g, '');
+  const count = isEn ? countChars(textOnly, true) : textOnly.length;
   if (count > limit) {
-    let newVal = '';
-    let c = 0;
-    for (const ch of val) {
-      const add = (ch === '\n') ? 0 : (isEn ? (isWideChar(ch) ? 2 : 1) : 1);
-      if (c + add > limit) break;
-      newVal += ch;
-      c += add;
-    }
-    el.value = newVal;
+    const parts = val.split('\n');
+    let remaining = limit;
+    const newParts = parts.map(line => {
+      if (remaining <= 0) return '';
+      const lineCount = isEn ? countChars(line, true) : line.length;
+      if (lineCount <= remaining) { remaining -= lineCount; return line; }
+      let cut = ''; let c = 0;
+      for (const ch of line) {
+        const add = isEn ? (isWideChar(ch) ? 2 : 1) : 1;
+        if (c + add > remaining) break;
+        cut += ch; c += add;
+      }
+      remaining = 0;
+      return cut;
+    });
+    el.value = newParts.join('\n');
   }
 }
 
@@ -1516,6 +1522,7 @@ function handleEnItemInput(el, field, itemId, limit) {
     let newVal = '';
     let c = 0;
     for (const ch of val) {
+      if (ch === '\n') { newVal += ch; continue; } // 改行はカウントせず保持
       const add = isWideChar(ch) ? 2 : 1;
       if (c + add > limit) break;
       newVal += ch;
@@ -1543,6 +1550,43 @@ function limitNewlines(el, maxLines) {
 // 導入文・コメント用：2行まで
 function handleLimitedNewline(el, maxLines) {
   limitNewlines(el, maxLines);
+}
+
+
+function removeNewlines(el) {
+  if (el.value.indexOf('\n') !== -1) {
+    const pos = el.selectionStart;
+    el.value = el.value.replace(/\n/g, '');
+    try { el.setSelectionRange(pos, pos); } catch(e) {}
+  }
+}
+
+
+function handleDescInput(el, itemId) {
+  const isEn = currentLang === 'en';
+  const limit = isEn ? EN_LIMITS.desc : JA_LIMITS.desc;
+  // 行ごとに文字数制限・2行までに制限
+  const lines = el.value.split('\n').slice(0, 2);
+  const limited = lines.map(line => {
+    if (isEn) {
+      let cut = ''; let c = 0;
+      for (const ch of line) {
+        const add = isWideChar(ch) ? 2 : 1;
+        if (c + add > limit) break;
+        cut += ch; c += add;
+      }
+      return cut;
+    } else {
+      return line.slice(0, limit);
+    }
+  });
+  const newVal = limited.join('\n');
+  if (el.value !== newVal) el.value = newVal;
+  // item.descを更新してプレビューのみ再描画（renderSidebarItemsを呼ばない）
+  const page = currentLang === 'en' ? getEnPage(activePageId) : getPage(activePageId);
+  if (!page) return;
+  const item = page.items.find(i => i.id === itemId);
+  if (item) { item.desc = el.value; updatePreview(); }
 }
 
 // ---- トースト ----
